@@ -1,6 +1,6 @@
+import React from 'react';
 import { useContext } from 'react';
 import noteContext from '../context/notes/noteContext';
-
 
 export default function Noteitem(props) {
   const context = useContext(noteContext);
@@ -8,57 +8,36 @@ export default function Noteitem(props) {
   const { note, updateNote, handleView } = props;
 
   return (
-    <div className="col-md-3 mb-4">
+    <div className="relative group">
       <div
-        className="card h-100 shadow-sm"
-        style={{ cursor: "pointer" }}
+        className="bg-white text-[#191A23] rounded-2xl shadow-lg p-6 transition-all duration-300 border border-[#e5e7eb] group-hover:shadow-2xl min-h-[180px] flex flex-col cursor-pointer"
         onClick={() => handleView(note)}
       >
-        <div className="card-body d-flex flex-column">
-          <h5 className="card-title mb-3 d-flex align-items-center">
-  {note.title}
-  <span
-    className={`badge ms-2 ${
-      note.tag === 'personal' ? 'bg-info text-dark' :
-      note.tag === 'todo' ? 'bg-warning text-dark' :
-      note.tag === 'work' ? 'bg-danger' :
-      'bg-secondary'
-    }`}
-    style={{ fontSize: '0.75rem', cursor: 'default' }}
-  >
-    {note.tag}
-  </span>
-</h5>
-
-          <p className="card-text flex-grow-1">{note.description}</p>
-          <div className="mt-3 d-flex justify-content-end gap-3">
-           <button
-  className="btn btn-outline-danger btn-sm"
-  title="Delete note"
-  onClick={(e) => {
-    e.stopPropagation();
-if (window.confirm("Are you sure you want to delete this note? (There is no recycle bin 😜)")) {
-  deleteNote(note._id);
-}
- {
-      deleteNote(note._id);
-    }
-  }}
->
-  <i className="fa-solid fa-trash"></i>
-</button>
-
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xl font-bold truncate flex-1 pr-2">{note.title}</h3>
+          <div className="flex gap-2">
             <button
-              className="btn btn-outline-primary btn-sm"
-              title="Edit note"
-              onClick={(e) => {
-                e.stopPropagation();
-                updateNote(note);
-              }}
+              className="text-[#ff5c35] hover:text-white p-2 rounded-full transition"
+              onClick={e => { e.stopPropagation(); updateNote(note); }}
+              aria-label="Edit note"
             >
-              <i className="fa-solid fa-pen-to-square"></i>
+              <i className="fas fa-pen-to-square"></i>
+            </button>
+            <button
+              className="text-[#ff5c35] hover:text-white p-2 rounded-full transition"
+              onClick={e => { e.stopPropagation(); if (window.confirm('Are you sure you want to delete this note?')) deleteNote(note._id); }}
+              aria-label="Delete note"
+            >
+              <i className="fas fa-trash"></i>
             </button>
           </div>
+        </div>
+        <p className="text-[#191A23] mb-4 line-clamp-3 flex-1">{note.description}</p>
+        <div className="flex items-center justify-between mt-2">
+          <span className="inline-block bg-[#ff5c35]/20 text-[#ff5c35] px-3 py-1 rounded-full text-xs font-semibold">
+            {note.tag}
+          </span>
+          <span className="text-xs text-[#191A23]/50">{new Date(note.date).toLocaleDateString()}</span>
         </div>
       </div>
     </div>

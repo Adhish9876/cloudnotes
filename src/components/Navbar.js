@@ -1,98 +1,49 @@
-import React, { useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-function Navbar() {
-  let location = useLocation();
+const Navbar = () => {
   const navigate = useNavigate();
-
-  // Check if user is logged in by token presence
+  const location = useLocation();
   const isLoggedIn = !!localStorage.getItem('token');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/Ihome');
+    navigate('/');
   };
 
-  useEffect(() => {
-    // For debugging current path
-    console.log(location);
-  }, [location]);
+  // Hide Navbar on landing, login, signup
+  if (['/', '/login', '/signup'].includes(location.pathname)) {
+    return null;
+  }
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-
-      <div className="container-fluid">
-        <Link className="navbar-brand" to="/">CloudNotes</Link>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-          aria-expanded="false" aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${location.pathname === "/" || location.pathname === "/home" ? "active" : ""}`}
-                aria-current="page"
-                to="/"
-              >
-                Home
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${location.pathname === "/about" ? "active" : ""}`}
-                to="/about"
-              >
-                About
-              </Link>
-            </li>
-
-          </ul>
-
-          <form className="d-flex" role="search" onSubmit={e => e.preventDefault()}>
-            <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-            <button className="btn btn-outline-success" type="submit">Search</button>
-          </form>
-
-          <ul className="navbar-nav ms-3">
-            {!isLoggedIn ? (
-              <>
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${location.pathname === "/login" ? "active" : ""}`}
-                    to="/login"
-                  >
-                    Login
-                  </Link>
-                </li>
-
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${location.pathname === "/signup" ? "active" : ""}`}
-                    to="/signup"
-                  >
-                    Sign Up
-                  </Link>
-                </li>
-              </>
-            ) : (
-              <li className="nav-item">
-                <button className="btn btn-outline-danger" onClick={handleLogout}>
-                  Sign Out
-                </button>
-              </li>
-            )}
-          </ul>
-
+    <nav className="fixed top-0 left-0 w-full z-50 bg-[#191A23] border-b border-[#23243a] shadow-lg">
+      <div className="flex justify-between h-16 items-center w-full">
+        {/* Logo aligned left */}
+        <div className="flex-shrink-0 flex items-center pl-6">
+          <Link to="/home" className="text-2xl font-bold text-white tracking-tight">
+            Cloud<span className="text-[#ff5c35]">Notes</span>
+          </Link>
+        </div>
+        {/* Auth Buttons aligned right */}
+        <div className="flex items-center space-x-4 pr-6 ml-auto">
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition"
+            >
+              Log out
+            </button>
+          ) : (
+            <>
+              <Link to="/login" className="px-5 py-2 rounded-full bg-[#23243a] text-white font-semibold hover:bg-[#23243a]/80 border border-[#ff5c35] hover:text-[#ff5c35] transition">Login</Link>
+              <Link to="/signup" className="px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition">Sign Up</Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;
