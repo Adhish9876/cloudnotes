@@ -15,32 +15,15 @@ function AppContent({ showAlert, alertMessage }) {
   const location = useLocation();
   // Hide Navbar on Ihome (landing page)
   const hideNavbar = location.pathname === "/"||location.pathname === "/login"||location.pathname === "/signup";
-
-  // Add search/sort state for /allnotes
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("Newest");
-
-  // Reset search/sort when leaving /allnotes
-  React.useEffect(() => {
-    if (location.pathname !== "/allnotes") {
-      setSearch("");
-      setSort("Newest");
-    }
-  }, [location.pathname]);
-
   return (
     <>
-      {!hideNavbar && (
-        location.pathname === "/allnotes"
-          ? <Navbar search={search} setSearch={setSearch} sort={sort} setSort={setSort} />
-          : <Navbar />
-      )}
+      {!hideNavbar && <Navbar />}
       {alertMessage && <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md"><Alert message={alertMessage} /></div>}
       <Routes>
         <Route path="/" element={<Ihome />} /> {/* Welcome Page */}
         <Route path="/about" element={<About />} />
         <Route path="/home" element={<Home showAlert={showAlert} />} /> {/* After login */}
-        <Route path="/allnotes" element={<AllNotes showAlert={showAlert} search={search} setSearch={setSearch} sort={sort} setSort={setSort} />} />
+        <Route path="/allnotes" element={<AllNotes showAlert={showAlert} />} />
         <Route path="/login" element={<Login showAlert={showAlert} />} />
         <Route path="/signup" element={<Signup showAlert={showAlert} />} />
       </Routes>

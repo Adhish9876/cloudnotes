@@ -58,9 +58,13 @@ const Navbar = ({ search, setSearch, sort, setSort }) => {
                 
               </>
             )}
-            
-            <Link to="/allnotes" className="ml-2 px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition whitespace-nowrap">
-              My Notes
+
+            {/* Single dynamic button for notes */}
+            <Link
+              to={location.pathname === '/allnotes' ? '/home?addnote=1' : '/allnotes'}
+              className="ml-4 px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition whitespace-nowrap"
+            >
+              {location.pathname === '/allnotes' ? 'Create Note+' : 'Your Notes'}
             </Link>
           </div>
         )}

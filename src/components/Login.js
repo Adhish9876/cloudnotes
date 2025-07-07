@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../firebase';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 export default function Login() {
   const Host = "http://localhost:5000";
@@ -41,6 +43,20 @@ export default function Login() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
+  };
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+      localStorage.setItem('token', idToken);
+      localStorage.setItem('userEmail', result.user.email);
+      navigate("/home");
+    } catch (err) {
+      setError(err.message || "Google sign in failed");
+    }
   };
 
   return (
@@ -97,7 +113,11 @@ export default function Login() {
             </form>
 
             {/* Google Sign In */}
-            <button className="w-full mt-4 py-3 rounded-xl border border-[#e5e7eb] bg-white text-[#191A23] font-semibold flex items-center justify-center gap-2 shadow hover:bg-[#f3f4f6] transition">
+            <button
+              className="w-full mt-4 py-3 rounded-xl border border-[#e5e7eb] bg-white text-[#191A23] font-semibold flex items-center justify-center gap-2 shadow hover:bg-[#f3f4f6] transition"
+              type="button"
+              onClick={handleGoogleLogin}
+            >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
               Sign in with Google
             </button>
@@ -111,7 +131,7 @@ export default function Login() {
           {/* Right: Illustration */}
           <div className="w-full md:w-1/2 bg-[#ff5c35] p-14 flex items-center justify-center">
             <img
-              src="/login.png"
+              src="/Login.png"
               alt="Cloud Illustration"
               className="w-full h-auto max-w-md object-contain drop-shadow-2xl"
             />

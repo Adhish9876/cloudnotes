@@ -7,9 +7,9 @@ const Footer = () => (
         Cloud<span className="text-[#ff5c35]">Notes</span> &copy; {new Date().getFullYear()}
       </div>
       <div className="flex gap-6 text-[#b0b3c6] text-sm">
-        <a href="/about" className="hover:text-[#ff5c35] transition">About</a>
+        
         <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff5c35] transition">GitHub</a>
-        <a href="mailto:support@cloudnotes.com" className="hover:text-[#ff5c35] transition">Contact</a>
+       
       </div>
     </div>
   </footer>
