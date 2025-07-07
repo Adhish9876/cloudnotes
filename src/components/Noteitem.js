@@ -4,11 +4,30 @@ import noteContext from '../context/notes/noteContext';
 
 export default function Noteitem(props) {
   const context = useContext(noteContext);
-  const { deleteNote } = context;
-  const { note, updateNote, handleView } = props;
+  const { deleteNote, pinNote, unpinNote } = context;
+  const { note, updateNote, handleView, showAlert } = props;
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this note?')) {
+      deleteNote(note._id);
+      if (showAlert) showAlert('Note deleted successfully!');
+    }
+  };
+
+  const handlePin = (e) => {
+    e.stopPropagation();
+    if (note.pinned) {
+      unpinNote(note._id);
+      if (showAlert) showAlert('Note unpinned');
+    } else {
+      pinNote(note._id);
+      if (showAlert) showAlert('Note pinned');
+    }
+  };
 
   return (
-    <div className="relative group">
+    <div className={`relative group ${note.pinned ? 'border-2 border-yellow-400' : ''}`}>
       <div
         className="bg-white text-[#191A23] rounded-2xl shadow-lg p-6 transition-all duration-300 border border-[#e5e7eb] group-hover:shadow-2xl min-h-[180px] flex flex-col cursor-pointer"
         onClick={() => handleView(note)}
@@ -16,6 +35,17 @@ export default function Noteitem(props) {
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-xl font-bold truncate flex-1 pr-2">{note.title}</h3>
           <div className="flex gap-2">
+            <button
+              className="text-yellow-400 hover:text-yellow-500 p-2 rounded-full transition"
+              onClick={handlePin}
+              aria-label={note.pinned ? 'Unpin note' : 'Pin note'}
+            >
+              {note.pinned ? (
+                <i className="fas fa-star"></i>
+              ) : (
+                <i className="far fa-star"></i>
+              )}
+            </button>
             <button
               className="text-[#ff5c35] hover:text-white p-2 rounded-full transition"
               onClick={e => { e.stopPropagation(); updateNote(note); }}
@@ -25,7 +55,7 @@ export default function Noteitem(props) {
             </button>
             <button
               className="text-[#ff5c35] hover:text-white p-2 rounded-full transition"
-              onClick={e => { e.stopPropagation(); if (window.confirm('Are you sure you want to delete this note?')) deleteNote(note._id); }}
+              onClick={handleDelete}
               aria-label="Delete note"
             >
               <i className="fas fa-trash"></i>

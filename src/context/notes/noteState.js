@@ -86,8 +86,16 @@ const NoteState = (props) => {
     setnotes(updatedNotes);
   };
 
+  // PIN/UNPIN A NOTE (frontend only)
+  const pinNote = (id) => {
+    setnotes(notes => notes.map(note => note._id === id ? { ...note, pinned: true } : note));
+  };
+  const unpinNote = (id) => {
+    setnotes(notes => notes.map(note => note._id === id ? { ...note, pinned: false } : note));
+  };
+
   return (
-    <noteContext.Provider value={{ notes, addNote, deleteNote, editNote, getNote }}>
+    <noteContext.Provider value={{ notes, addNote, deleteNote, editNote, getNote, pinNote, unpinNote }}>
       {props.children}
     </noteContext.Provider>
   );

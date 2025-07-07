@@ -13,11 +13,20 @@ export default function Ihome() {
       <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#ff5c35]/10 rounded-full blur-3xl z-0"></div>
       <main className="relative z-10 w-full max-w-3xl mx-auto text-center py-24 flex flex-col items-center pt-8">
         <h1 className="text-5xl md:text-6xl font-extrabold text-white leading-tight mb-6">
-          Get things done with your <span className="text-[#ff5c35] font-extrabold italic relative">notes</span>
+          Get things done with Cloud<span className="text-[#ff5c35] font-extrabold italic relative">Notes</span>
         </h1>
-        <p className="text-xl md:text-2xl text-[#b0b3c6] max-w-2xl mx-auto mb-10">
-          CloudNotes is your modern, secure, and beautiful workspace for notes, tasks, and ideas. Fast, private, and always in sync—everywhere you go.
-        </p>
+        {!isLoggedIn && (
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-2">
+            <Link to="/login" className="w-full sm:w-auto px-8 py-4 rounded-full border-2 border-[#ff5c35] text-[#ff5c35] bg-transparent font-semibold text-lg transition hover:bg-[#ff5c35] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff5c35] focus:ring-offset-2 shadow-md">
+              Login
+            </Link>
+            <Link to="/signup" className="w-full sm:w-auto px-8 py-4 my-4 rounded-full bg-[#ff5c35] text-white font-semibold text-lg transition hover:bg-[#ff784e] focus:outline-none focus:ring-2 focus:ring-[#ff5c35] focus:ring-offset-2 shadow-md">
+
+              Sign Up
+            </Link>
+          </div>
+        )}
+        
         <div className="w-full flex flex-col md:flex-row gap-8 justify-center items-stretch mb-12">
           <div className="flex-1 bg-[#23243a] rounded-2xl shadow-lg p-8 flex flex-col items-start text-left border border-[#23243a]">
             <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#ff5c35]/10 mb-4">
@@ -41,16 +50,8 @@ export default function Ihome() {
             <p className="text-[#b0b3c6] text-base mb-4">Enjoy a clean, modern interface that keeps your notes organized and easy to find—no clutter, just clarity.</p>
           </div>
         </div>
-        {!isLoggedIn && (
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-2">
-            <Link to="/login" className="w-full sm:w-auto px-8 py-4 rounded-full border-2 border-[#ff5c35] text-[#ff5c35] bg-transparent font-semibold text-lg transition hover:bg-[#ff5c35] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff5c35] focus:ring-offset-2 shadow-md">
-              Login
-            </Link>
-            <Link to="/signup" className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#ff5c35] text-white font-semibold text-lg transition hover:bg-[#ff784e] focus:outline-none focus:ring-2 focus:ring-[#ff5c35] focus:ring-offset-2 shadow-md">
-              Sign Up
-            </Link>
-          </div>
-        )}
+        
+        
       </main>
     </div>
   );

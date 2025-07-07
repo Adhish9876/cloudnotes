@@ -27,6 +27,7 @@ export default function Login() {
 
       if (response.ok) {
         localStorage.setItem('token', json.authtoken);
+        localStorage.setItem('userEmail', credentials.email);
         navigate('/home');
         // navigate('/Home');
       } else {

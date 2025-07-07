@@ -2,13 +2,22 @@ import noteContext from '../context/notes/noteContext';
 import { useContext, useEffect, useState } from 'react';
 import Noteitem from './Noteitem';
 import AddNote from './AddNote';
+import { FaPlus } from 'react-icons/fa';
 
-export default function Notes() {
+export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
   const context = useContext(noteContext);
   const { notes, getNote, editNote } = context;
 
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
+
   useEffect(() => {
-    getNote();
+    setLoading(true);
+    setFetchError("");
+    getNote().catch((err) => {
+      setFetchError("Failed to load notes. Please check your connection and try again.");
+      if (showAlert) showAlert("Failed to load notes. Please check your connection.");
+    }).finally(() => setLoading(false));
   }, []);
 
   // Edit modal state
@@ -30,27 +39,41 @@ export default function Notes() {
     setCurrentNote({ ...currentNote, [e.target.name]: e.target.value });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     if (currentNote.title.length < 3 || currentNote.description.length < 5) {
       setWarning("Title must be at least 3 characters and description at least 5 characters.");
       return;
     }
     setWarning("");
-    editNote(currentNote._id, currentNote.title, currentNote.description, currentNote.tag);
+    await editNote(currentNote._id, currentNote.title, currentNote.description, currentNote.tag);
     closeModal();
+    if (showAlert) showAlert("Note updated successfully!");
   };
 
+  // Filter and sort notes
+  const filteredNotes = notes
+    .filter(note =>
+      note.title.toLowerCase().includes(search.toLowerCase()) ||
+      note.description.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sort === "Newest") return new Date(b.date) - new Date(a.date);
+      if (sort === "Oldest") return new Date(a.date) - new Date(b.date);
+      if (sort === "Title") return a.title.localeCompare(b.title);
+      return 0;
+    });
+
   return (
-    <div className="w-full min-h-screen bg-[#191A23] py-8 px-2 md:px-0">
+    <div className="w-full min-h-screen bg-[#191A23] py-4 px-0" aria-label="Notes Section">
       {/* Edit Note Modal */}
       {show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#23243a] rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-[#23243a] relative animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in" role="dialog" aria-modal="true" aria-label="Edit Note Modal">
+          <div className="bg-[#23243a] rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-[#23243a] relative animate-fade-in-up scale-95 opacity-0 animate-[fadeInUp_0.3s_ease-out_forwards] transition-transform duration-300">
             <button
-              className="absolute top-4 right-4 text-white hover:text-[#ff5c35] text-xl"
+              className="absolute top-4 right-4 text-white hover:text-[#ff5c35] text-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#ff5c35]"
               onClick={closeModal}
-              aria-label="Close"
+              aria-label="Close modal"
             >
               <i className="fas fa-times"></i>
             </button>
@@ -70,12 +93,13 @@ export default function Notes() {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] placeholder-gray-400 text-white transition"
+                  className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] placeholder-gray-400 text-white transition focus:outline-none"
                   name="title"
                   value={currentNote.title}
                   onChange={onChange}
                   minLength={3}
                   required
+                  aria-label="Note title"
                 />
               </div>
               <div>
@@ -83,13 +107,14 @@ export default function Notes() {
                   <i className="fas fa-align-left text-[#ff5c35]"></i> Description
                 </label>
                 <textarea
-                  className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] placeholder-gray-400 text-white transition"
+                  className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] placeholder-gray-400 text-white transition focus:outline-none"
                   name="description"
                   value={currentNote.description}
                   onChange={onChange}
                   minLength={5}
                   required
                   rows={4}
+                  aria-label="Note description"
                 />
               </div>
               <div>
@@ -97,29 +122,30 @@ export default function Notes() {
                   <i className="fas fa-tag text-[#ff5c35]"></i> Category
                 </label>
                 <select
-                  className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] text-white transition"
+                  className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] text-white transition focus:outline-none"
                   name="tag"
                   value={currentNote.tag}
                   onChange={onChange}
+                  aria-label="Note category"
                 >
                   <option value="personal">Personal</option>
                   <option value="work">Work</option>
-                  
                   <option value="todo">Todo</option>
-                  
                 </select>
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
-                  className="px-6 py-2 rounded-full bg-[#191A23] text-white font-semibold border border-[#23243a] hover:border-[#ff5c35] hover:text-[#ff5c35] transition"
+                  className="px-6 py-2 rounded-full bg-[#191A23] text-white font-semibold border border-[#23243a] hover:border-[#ff5c35] hover:text-[#ff5c35] transition transform hover:scale-105 hover:brightness-110 duration-200 focus:outline-none focus:ring-2 focus:ring-[#ff5c35]"
                   onClick={closeModal}
+                  aria-label="Cancel edit"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-8 py-2 text-lg flex items-center gap-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition"
+                  className="px-8 py-2 text-lg flex items-center gap-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition transform hover:scale-105 hover:brightness-110 duration-200 focus:outline-none focus:ring-2 focus:ring-[#ff5c35]"
+                  aria-label="Save note"
                 >
                   <i className="fas fa-save"></i> Save
                 </button>
@@ -128,32 +154,7 @@ export default function Notes() {
           </div>
         </div>
       )}
-      <AddNote />
-      <div className="max-w-5xl mx-auto mt-12">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-            <i className="fas fa-sticky-note text-[#ff5c35]"></i> Your Notes
-          </h2>
-          <span className="bg-[#ff5c35]/10 text-[#ff5c35] px-4 py-1 rounded-full font-semibold text-sm">
-            {notes.length} {notes.length === 1 ? 'Note' : 'Notes'}
-          </span>
-        </div>
-        <div className="bg-[#23243a] rounded-2xl p-8 shadow-xl">
-          {notes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24">
-              <i className="fas fa-inbox text-6xl text-[#b0b3c6] mb-6"></i>
-              <h4 className="text-xl text-[#b0b3c6] mb-2">No notes yet</h4>
-              <p className="text-[#b0b3c6]">Create your first note to get started!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {notes.map((note) => (
-                <Noteitem key={note._id} note={note} updateNote={openModal} handleView={() => {}} />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      <AddNote showAlert={showAlert} />
     </div>
   );
 }
