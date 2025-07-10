@@ -3,8 +3,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import { createUserWithEmailAndPassword, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
+// Dynamic host selection for local/dev and production
+function getApiHost() {
+  if (window.location.hostname === 'localhost') {
+    return 'http://localhost:5000';
+  }
+  return 'https://cloudnotes-7.onrender.com';
+}
+
 export default function Signup() {
-  const Host = "http://localhost:5000";
+  const Host = getApiHost();
   const [credentials, setCredentials] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -34,9 +42,20 @@ export default function Signup() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
-      localStorage.setItem('token', idToken);
-      localStorage.setItem('userEmail', result.user.email);
-      navigate("/home");
+      // Send the idToken to backend to get backend JWT
+      const response = await fetch(`${Host}/api/auth/google-login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+      const json = await response.json();
+      if (response.ok) {
+        localStorage.setItem('token', json.authtoken);
+        localStorage.setItem('userEmail', result.user.email);
+        navigate("/home");
+      } else {
+        setError(json.error || "Google sign up failed");
+      }
     } catch (err) {
       setError(err.message || "Google sign up failed");
     }

@@ -1,11 +1,12 @@
 import React from 'react';
 import { useContext } from 'react';
 import noteContext from '../context/notes/noteContext';
+import { motion } from 'framer-motion';
 
 export default function Noteitem(props) {
   const context = useContext(noteContext);
   const { deleteNote, pinNote, unpinNote } = context;
-  const { note, updateNote, handleView, showAlert } = props;
+  const { note, updateNote, handleView, showAlert, ...motionProps } = props;
 
   const handleDelete = (e) => {
     e.stopPropagation();
@@ -27,7 +28,7 @@ export default function Noteitem(props) {
   };
 
   return (
-    <div className={`relative group ${note.pinned ? 'border-2 border-yellow-400' : ''}`}>
+    <motion.div className={`relative group ${note.pinned ? 'border-2 border-yellow-400' : ''}`} {...motionProps}>
       <div
         className="bg-white text-[#191A23] rounded-2xl shadow-lg p-4 sm:p-6 transition-all duration-300 border border-[#e5e7eb] group-hover:shadow-2xl min-h-[180px] flex flex-col cursor-pointer min-w-0"
         onClick={() => handleView(note)}
@@ -70,6 +71,6 @@ export default function Noteitem(props) {
           <span className="text-xs text-[#191A23]/50">{new Date(note.date).toLocaleDateString()}</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

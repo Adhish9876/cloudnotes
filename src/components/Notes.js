@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import Noteitem from './Noteitem';
 import AddNote from './AddNote';
 import { FaPlus } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
   const context = useContext(noteContext);
@@ -64,12 +65,38 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
       return 0;
     });
 
+  // Animation variants
+  const containerVariants = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.2,
+      },
+    },
+  };
+  const noteVariants = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring', stiffness: 60 } },
+    exit: { opacity: 0, y: 30, transition: { duration: 0.3 } },
+  };
+
   return (
-    <div className="w-full min-h-screen bg-[#191A23] py-4 px-0" aria-label="Notes Section">
+    <motion.div className="w-full min-h-screen bg-[#191A23] py-4 px-0" aria-label="Notes Section"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+    >
       {/* Edit Note Modal */}
       {show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in" role="dialog" aria-modal="true" aria-label="Edit Note Modal">
-          <div className="bg-[#23243a] rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-[#23243a] relative animate-fade-in-up scale-95 opacity-0 animate-[fadeInUp_0.3s_ease-out_forwards] transition-transform duration-300">
+          <motion.div
+            className="bg-[#23243a] rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-[#23243a] relative animate-fade-in-up scale-95 opacity-0 animate-[fadeInUp_0.3s_ease-out_forwards] transition-transform duration-300"
+            initial={{ opacity: 0, scale: 0.95, y: 40 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 40 }}
+            transition={{ duration: 0.3 }}
+          >
             <button
               className="absolute top-4 right-4 text-white hover:text-[#ff5c35] text-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#ff5c35]"
               onClick={closeModal}
@@ -151,10 +178,43 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
-      <AddNote showAlert={showAlert} />
-    </div>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <AddNote showAlert={showAlert} />
+      </motion.div>
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        <AnimatePresence>
+          {filteredNotes.map((note, i) => (
+            <motion.div
+              key={note._id}
+              variants={noteVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              layout
+            >
+              <Noteitem
+                note={note}
+                updateNote={openModal}
+                handleView={() => {}}
+                showAlert={showAlert}
+                index={i}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 }

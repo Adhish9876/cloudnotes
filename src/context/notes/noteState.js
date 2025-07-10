@@ -1,8 +1,16 @@
 import React, { useState } from "react";
 import noteContext from "./noteContext";
 
+// Dynamic host selection for local/dev and production
+function getApiHost() {
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:5000';
+  }
+  return 'https://cloudnotes-7.onrender.com';
+}
+
 const NoteState = (props) => {
-  const host = "http://localhost:5000";
+  const host = getApiHost();
 
   const notesinitial = [
     

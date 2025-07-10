@@ -161,8 +161,12 @@ const Navbar = ({ search, setSearch, sort, setSort }) => {
                     aria-label="Search notes"
                   />
                 </>}
-                <Link to="/home" className="w-full px-5 py-2 rounded-full bg-[#23243a] text-white font-semibold shadow hover:bg-[#23243a]/80 border border-[#ff5c35] hover:text-[#ff5c35] transition text-center">Your Notes</Link>
-                <Link to="/allnotes" className="w-full px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition text-center">My Notes</Link>
+                {/* Single dynamic button for mobile */}
+                {location.pathname === '/allnotes' ? (
+                  <Link to="/home?addnote=1" className="w-full px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition text-center">Create</Link>
+                ) : (
+                  <Link to="/allnotes" className="w-full px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition text-center">My Notes</Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition"
