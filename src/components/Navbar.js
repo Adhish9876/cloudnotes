@@ -125,44 +125,59 @@ const Navbar = ({ search, setSearch, sort, setSort }) => {
           </button>
         </div>
       </div>
-      {/* Mobile Dropdown */}
+      {/* Mobile Sidebar (Right) */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#23243a] border-t border-[#23243a] px-6 py-4 flex flex-col gap-4 animate-fade-in">
-          {isLoggedIn ? (
-            <>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="w-8 h-8 rounded-full bg-[#ff5c35] flex items-center justify-center text-white font-bold text-lg">
-                  <i className="fas fa-user"></i>
-                </span>
-                <span className="text-white font-semibold">{userEmail}</span>
-              </div>
-              {showSearchSort && <>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 rounded-xl border border-[#23243a] bg-[#23243a] text-white placeholder-[#b0b3c6] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] focus:outline-none transition"
-                  placeholder="Search notes..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  aria-label="Search notes"
-                />
-                
-              </>}
-              <Link to="/home" className="w-full px-5 py-2 rounded-full bg-[#23243a] text-white font-semibold shadow hover:bg-[#23243a]/80 border border-[#ff5c35] hover:text-[#ff5c35] transition text-center">Your Notes</Link>
-              <Link to="/allnotes" className="w-full px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition text-center">My Notes</Link>
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition"
-              >
-                Log out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="px-5 py-2 rounded-full bg-[#23243a] text-white font-semibold hover:bg-[#23243a]/80 border border-[#ff5c35] hover:text-[#ff5c35] transition">Login</Link>
-              <Link to="/signup" className="px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition">Sign Up</Link>
-            </>
-          )}
-        </div>
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close menu"
+          />
+          {/* Sidebar */}
+          <div className="fixed top-0 right-0 h-screen w-4/5 max-w-xs bg-[#23243a] border-l border-[#23243a] px-6 py-8 flex flex-col gap-4 z-50 shadow-2xl transition-transform duration-300 transform translate-x-0 animate-slide-in-right">
+            <button
+              className="absolute top-4 right-4 text-[#b0b3c6] hover:text-[#ff5c35] text-2xl focus:outline-none"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close sidebar"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+            {isLoggedIn ? (
+              <>
+                <div className="flex items-center gap-3 mb-2 mt-8">
+                  <span className="w-8 h-8 rounded-full bg-[#ff5c35] flex items-center justify-center text-white font-bold text-lg">
+                    <i className="fas fa-user"></i>
+                  </span>
+                  <span className="text-white font-semibold">{userEmail}</span>
+                </div>
+                {showSearchSort && <>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 rounded-xl border border-[#23243a] bg-[#23243a] text-white placeholder-[#b0b3c6] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] focus:outline-none transition"
+                    placeholder="Search notes..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    aria-label="Search notes"
+                  />
+                </>}
+                <Link to="/home" className="w-full px-5 py-2 rounded-full bg-[#23243a] text-white font-semibold shadow hover:bg-[#23243a]/80 border border-[#ff5c35] hover:text-[#ff5c35] transition text-center">Your Notes</Link>
+                <Link to="/allnotes" className="w-full px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition text-center">My Notes</Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="px-5 py-2 rounded-full bg-[#23243a] text-white font-semibold hover:bg-[#23243a]/80 border border-[#ff5c35] hover:text-[#ff5c35] transition">Login</Link>
+                <Link to="/signup" className="px-5 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition">Sign Up</Link>
+              </>
+            )}
+          </div>
+        </>
       )}
     </nav>
   );

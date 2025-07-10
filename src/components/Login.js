@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 export default function Login() {
@@ -17,21 +17,17 @@ export default function Login() {
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
-
     try {
       const response = await fetch(`${Host}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       });
-
       const json = await response.json();
-
       if (response.ok) {
         localStorage.setItem('token', json.authtoken);
         localStorage.setItem('userEmail', credentials.email);
         navigate('/home');
-        // navigate('/Home');
       } else {
         setError(json.error || 'Login failed');
       }
@@ -42,6 +38,7 @@ export default function Login() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
     navigate('/');
   };
 
@@ -62,11 +59,11 @@ export default function Login() {
   return (
     <div className="relative h-screen w-screen bg-[#191A23] px-4">
       {/* Centered login box */}
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full px-2 sm:px-4">
         {/* Shared Card Container */}
-        <div className="flex flex-col md:flex-row w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden">
+        <div className="flex flex-col-reverse md:flex-row w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden">
           {/* Left: Login Form */}
-          <div className="w-full md:w-1/2 bg-[#23243a] p-14 flex flex-col justify-center">
+          <div className="w-full md:w-1/2 bg-[#23243a] p-4 sm:p-8 lg:p-14 flex flex-col justify-center">
             <div className="flex justify-center mb-6">
               <img src="/cloud.png" alt="Cloud Logo" className="w-12 h-12 object-contain" />
             </div>
@@ -129,7 +126,7 @@ export default function Login() {
           </div>
 
           {/* Right: Illustration */}
-          <div className="w-full md:w-1/2 bg-[#ff5c35] p-14 flex items-center justify-center">
+          <div className="w-full md:w-1/2 bg-[#ff5c35] p-4 sm:p-8 lg:p-14 flex items-center justify-center">
             <img
               src="/Login.png"
               alt="Cloud Illustration"

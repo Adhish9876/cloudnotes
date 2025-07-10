@@ -29,7 +29,7 @@ const AddNote  = ({ showAlert }) => {
 
   return (
     <div>
-      <div className="max-w-2xl w-full mx-auto bg-[#23243a] rounded-2xl shadow-2xl p-12 mt-12 border border-[#23243a] transition-shadow duration-200 hover:shadow-3xl flex flex-col items-center">
+      <div className="max-w-2xl w-full mx-auto bg-[#23243a] rounded-2xl shadow-2xl p-4 sm:p-8 lg:p-12 mt-8 border border-[#23243a] transition-shadow duration-200 hover:shadow-3xl flex flex-col items-center">
         <h1 className="text-white font-bold text-3xl mb-6 flex items-center gap-3">
           <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#ff5c35] text-white mr-2 text-2xl">
             <FaPlus />

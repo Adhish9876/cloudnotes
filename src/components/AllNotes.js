@@ -35,17 +35,17 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
   const otherNotes = filteredNotes.filter(n => !n.pinned);
 
   return (
-    <div className="w-full min-h-screen bg-[#191A23] py-4 px-0 pt-16" aria-label="All Notes Section">
+    <div className="w-full min-h-screen bg-[#191A23] py-4 px-2 sm:px-4 pt-16" aria-label="All Notes Section">
       <div className="max-w-5xl mx-auto mt-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-4xl font-extrabold text-white tracking-tight flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4 sm:gap-0">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight flex items-center gap-3">
             <i className="fas fa-sticky-note text-[#ff5c35]"></i> All Notes
           </h2>
-          <span className="bg-[#ff5c35]/20 text-[#ff5c35] px-4 py-1 rounded-full font-semibold text-base">
+          <span className="bg-[#ff5c35]/20 text-[#ff5c35] px-4 py-1 rounded-full font-semibold text-sm sm:text-base">
             {filteredNotes.length} {filteredNotes.length === 1 ? 'Note' : 'Notes'}
           </span>
         </div>
-        <div className="bg-[#23243a] rounded-2xl p-8 shadow-2xl transition-shadow duration-200 hover:shadow-3xl min-h-[300px] flex items-center justify-center" style={{minHeight:loading?"300px":undefined}}>
+        <div className="bg-[#23243a] rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl transition-shadow duration-200 hover:shadow-3xl min-h-[300px] flex items-center justify-center" style={{minHeight:loading?"300px":undefined}}>
           {loading ? (
             <div className="flex flex-col items-center justify-center w-full">
               <div className="w-12 h-12 border-4 border-[#ff5c35] border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -72,10 +72,10 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
             <div className="w-full">
               {pinnedNotes.length > 0 && (
                 <>
-                  <div className="mb-2 text-yellow-400 font-semibold text-lg flex items-center gap-2">
+                  <div className="mb-2 text-yellow-400 font-semibold text-base sm:text-lg flex items-center gap-2">
                     <i className="fas fa-thumbtack"></i> Pinned
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-8">
                     {pinnedNotes.map((note) => (
                       <Noteitem key={note._id} note={note} updateNote={() => {}} handleView={() => {}} showAlert={showAlert} />
                     ))}
@@ -85,11 +85,11 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
               {otherNotes.length > 0 && (
                 <>
                   {pinnedNotes.length > 0 && (
-                    <div className="mb-2 text-[#b0b3c6] font-semibold text-lg flex items-center gap-2">
+                    <div className="mb-2 text-[#b0b3c6] font-semibold text-base sm:text-lg flex items-center gap-2">
                       <i className="fas fa-layer-group"></i> Others
                     </div>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                     {otherNotes.map((note) => (
                       <Noteitem key={note._id} note={note} updateNote={() => {}} handleView={() => {}} showAlert={showAlert} />
                     ))}

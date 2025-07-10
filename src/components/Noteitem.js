@@ -29,14 +29,14 @@ export default function Noteitem(props) {
   return (
     <div className={`relative group ${note.pinned ? 'border-2 border-yellow-400' : ''}`}>
       <div
-        className="bg-white text-[#191A23] rounded-2xl shadow-lg p-6 transition-all duration-300 border border-[#e5e7eb] group-hover:shadow-2xl min-h-[180px] flex flex-col cursor-pointer"
+        className="bg-white text-[#191A23] rounded-2xl shadow-lg p-4 sm:p-6 transition-all duration-300 border border-[#e5e7eb] group-hover:shadow-2xl min-h-[180px] flex flex-col cursor-pointer min-w-0"
         onClick={() => handleView(note)}
       >
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xl font-bold truncate flex-1 pr-2">{note.title}</h3>
+        <div className="flex items-center justify-between mb-2 min-w-0">
+          <h3 className="text-lg sm:text-xl font-bold truncate flex-1 pr-2 min-w-0">{note.title}</h3>
           <div className="flex gap-2">
             <button
-              className="text-yellow-400 hover:text-yellow-500 p-2 rounded-full transition"
+              className="text-yellow-400 hover:text-yellow-500 p-3 sm:p-2 rounded-full transition"
               onClick={handlePin}
               aria-label={note.pinned ? 'Unpin note' : 'Pin note'}
             >
@@ -47,14 +47,14 @@ export default function Noteitem(props) {
               )}
             </button>
             <button
-              className="text-[#ff5c35] hover:text-white p-2 rounded-full transition"
+              className="text-[#ff5c35] hover:text-white p-3 sm:p-2 rounded-full transition"
               onClick={e => { e.stopPropagation(); updateNote(note); }}
               aria-label="Edit note"
             >
               <i className="fas fa-pen-to-square"></i>
             </button>
             <button
-              className="text-[#ff5c35] hover:text-white p-2 rounded-full transition"
+              className="text-[#ff5c35] hover:text-white p-3 sm:p-2 rounded-full transition"
               onClick={handleDelete}
               aria-label="Delete note"
             >
@@ -62,7 +62,7 @@ export default function Noteitem(props) {
             </button>
           </div>
         </div>
-        <p className="text-[#191A23] mb-4 line-clamp-3 flex-1">{note.description}</p>
+        <p className="text-[#191A23] mb-4 line-clamp-3 flex-1 text-base sm:text-lg">{note.description}</p>
         <div className="flex items-center justify-between mt-2">
           <span className="inline-block bg-[#ff5c35]/20 text-[#ff5c35] px-3 py-1 rounded-full text-xs font-semibold">
             {note.tag}

@@ -16,7 +16,6 @@ export default function Signup() {
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
-
     try {
       // Firebase signup
       const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
@@ -44,8 +43,8 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#191A23]">
-      <div className="bg-[#23243a] rounded-2xl shadow-2xl p-14 w-full max-w-lg mx-auto">
+    <div className="min-h-screen flex items-center justify-center bg-[#191A23] px-2 sm:px-4">
+      <div className="bg-[#23243a] rounded-2xl shadow-2xl p-4 sm:p-8 lg:p-14 w-full max-w-lg mx-auto">
         <h2 className="text-3xl font-bold text-white mb-6 text-center">Create your CloudNotes account</h2>
         {error && <div className="bg-red-500/10 border border-red-500 text-red-500 rounded-lg px-4 py-2 mb-4 text-center">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-5">
