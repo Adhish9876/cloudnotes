@@ -4,14 +4,15 @@
   "description": "cloudnotes-Take notes on the cloud!",
   "main": "index.js",
   "scripts": {
-  "start": "node index.js",
-  "dev": "nodemon index.js"
-},
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "admin": "^1.4.1",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
     "express": "^4.21.2",
     "express-validator": "^7.2.1",
     "firebase": "^11.10.0",
