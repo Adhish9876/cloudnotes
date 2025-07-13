@@ -27,10 +27,10 @@ export default function Signup() {
     try {
       // Firebase signup
       const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
-      await sendEmailVerification(userCredential.user);
       setError('');
-      alert('Signup successful! Please check your email for a verification link.');
-      // Optionally, redirect or clear form
+      // Log in immediately after signup
+      localStorage.setItem('userEmail', credentials.email);
+      navigate('/home');
     } catch (err) {
       setError(err.message || 'Signup failed');
     }

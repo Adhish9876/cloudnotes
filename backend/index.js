@@ -7,7 +7,14 @@ const cors = require("cors");
 
 const app = express();
 const port = process.env.PORT || 5000;
-app.use(cors()); 
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://cloudnotes-19.web.app', // Add your deployed frontend domain here
+    'https://cloudnotes-19.firebaseapp.com' // Add any other frontend domains if needed
+  ],
+  credentials: true
+}));
 
 // Connect to MongoDB
 connectToMongo();

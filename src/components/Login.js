@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
@@ -15,8 +15,15 @@ export default function Login() {
   const Host = getApiHost();
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [authenticating, setAuthenticating] = useState(false); // NEW
   const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem('token');
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/home');
+    }
+  }, [isLoggedIn, navigate]);
 
   const onChange = e => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -26,6 +33,8 @@ export default function Login() {
     e.preventDefault();
     setError('');
     try {
+      // Firebase email/password login
+      // (If you want to use Firebase Auth state, you can use signInWithEmailAndPassword here)
       const response = await fetch(`${Host}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,6 +61,7 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     setError("");
+    setAuthenticating(true); // NEW
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -71,8 +81,12 @@ export default function Login() {
         setError(json.error || "Google login failed");
       }
     } catch (err) {
-      setError(err.message || "Google sign in failed");
+      if (err.code !== 'auth/cancelled-popup-request') {
+        setError(err.message || "Google sign in failed");
+      }
+      // else: ignore cancelled-popup-request
     }
+    setAuthenticating(false); // NEW
   };
 
   return (
@@ -133,14 +147,15 @@ export default function Login() {
               className="w-full mt-4 py-3 rounded-xl border border-[#e5e7eb] bg-white text-[#191A23] font-semibold flex items-center justify-center gap-2 shadow hover:bg-[#f3f4f6] transition"
               type="button"
               onClick={handleGoogleLogin}
+              disabled={authenticating} // NEW
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-              Sign in with Google
+              {authenticating ? 'Signing in...' : 'Sign in with Google'}
             </button>
 
             <p className="mt-6 text-center text-[#b0b3c6]">
               Don't have an account?{' '}
-              <button className="text-[#ff5c35] hover:underline font-semibold">Sign Up</button>
+              <button className="text-[#ff5c35] hover:underline font-semibold" onClick={() => navigate('/signup')}>Sign Up</button>
             </p>
           </div>
 
@@ -154,18 +169,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-
-      {/* Logout Button (Top Right Corner) */}
-      {isLoggedIn && (
-        <div className="absolute top-6 right-6">
-          <button
-            onClick={handleLogout}
-            className="px-6 py-2 rounded-full bg-[#ff5c35] text-white font-semibold shadow hover:bg-[#ff784e] transition"
-          >
-            Log out
-          </button>
-        </div>
-      )}
     </div>
   );
 }
