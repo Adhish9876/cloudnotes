@@ -12,7 +12,7 @@ app.use(cors({
     'http://localhost:3000',
     'https://cloudnotes-19.web.app', // Add your deployed frontend domain here
     'https://cloudnotes-19.firebaseapp.com', // Add any other frontend domains if needed
-    'https://cloudnotes-7.onrender.com' // <-- Added deployed frontend domain
+    'https://cloudnotes-1-y424.onrender.com' // <-- Updated to current backend domain
   ],
   credentials: true
 }));
