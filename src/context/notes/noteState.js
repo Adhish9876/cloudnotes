@@ -6,7 +6,7 @@ function getApiHost() {
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     return 'http://localhost:5000';
   }
-  return 'https://cloudnotes-7.onrender.com';
+  return 'https://cloudnotes-d60l.onrender.com';
 }
 
 const NoteState = (props) => {
