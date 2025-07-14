@@ -9,7 +9,7 @@ function getApiHost() {
   if (window.location.hostname === 'localhost') {
     return 'http://localhost:5000';
   }
-  return 'https://cloudnotes-d60l.onrender.com';
+  return 'https://cloudnotes-1-y424.onrender.com';
 }
 
 export default function Login() {
