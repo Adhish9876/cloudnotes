@@ -1,4 +1,5 @@
 // Minor change: Added this comment to allow a new commit
+// Updated backend URL to cloudnotes-d60l.onrender.com for production
 import React, { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +10,7 @@ function getApiHost() {
   if (window.location.hostname === 'localhost') {
     return 'http://localhost:5000';
   }
-  return 'https://cloudnotes-1-y424.onrender.com';
+  return 'https://cloudnotes-d60l.onrender.com';
 }
 
 export default function Login() {
