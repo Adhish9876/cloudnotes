@@ -9,7 +9,7 @@ const Footer = () => (
       <div className="flex gap-6 text-[#b0b3c6] text-sm">
         
         <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff5c35] transition">GitHub</a>
-       
+        <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff5c35] transition">click me</a>
       </div>
     </div>
   </footer>
