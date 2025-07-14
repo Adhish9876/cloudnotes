@@ -9,6 +9,20 @@ const admin = require('firebase-admin');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
+// Initialize Firebase Admin SDK
+let serviceAccount;
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} else {
+  serviceAccount = require('../firebaseServiceAccount.json');
+}
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
+
 // Replace with your actual User model path
 const User = require('../models/User');
 
