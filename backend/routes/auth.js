@@ -161,7 +161,33 @@ router.post('/login',
     }
 });
 
-    // Remove /google-login route and firebase-admin usage
+    // Add Google Login Route
+router.post('/google-login', async (req, res) => {
+  const { idToken } = req.body;
+  if (!idToken) {
+    return res.status(400).json({ error: 'No idToken provided' });
+  }
+  try {
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    if (!decoded.email_verified) {
+      return res.status(403).json({ error: 'Email not verified' });
+    }
+    let user = await User.findOne({ email: decoded.email });
+    if (!user) {
+      const randomPassword = require('crypto').randomBytes(32).toString('hex');
+      user = await User.create({
+        name: decoded.name || decoded.email.split('@')[0],
+        email: decoded.email,
+        password: randomPassword,
+      });
+    }
+    const payload = { user: { id: user.id } };
+    const authtoken = jwt.sign(payload, JWT_SECRET);
+    res.json({ authtoken });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid or expired idToken' });
+  }
+});
 
    
        

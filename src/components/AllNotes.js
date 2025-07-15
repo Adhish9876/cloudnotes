@@ -35,9 +35,9 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
   const otherNotes = filteredNotes.filter(n => !n.pinned);
 
   return (
-    <div className="w-full min-h-screen bg-[#191A23] py-4 px-2 sm:px-4 pt-16" aria-label="All Notes Section">
+    <div className="w-full min-h-screen bg-[#191A23] py-6 px-2 sm:px-4 pt-16" aria-label="All Notes Section">
       <div className="max-w-5xl mx-auto mt-8">
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4 sm:gap-0">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-6 sm:gap-0">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight flex items-center gap-3">
             <i className="fas fa-sticky-note text-[#ff5c35]"></i> All Notes
           </h2>

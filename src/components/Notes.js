@@ -82,16 +82,16 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
   };
 
   return (
-    <motion.div className="w-full min-h-screen bg-[#191A23] py-4 px-0" aria-label="Notes Section"
+    <motion.div className="w-full min-h-screen bg-[#191A23] py-4 px-2 sm:px-4" aria-label="Notes Section"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
       {/* Edit Note Modal */}
       {show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in" role="dialog" aria-modal="true" aria-label="Edit Note Modal">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in overflow-y-auto">
           <motion.div
-            className="bg-[#23243a] rounded-2xl shadow-2xl max-w-lg w-full p-8 border border-[#23243a] relative animate-fade-in-up scale-95 opacity-0 animate-[fadeInUp_0.3s_ease-out_forwards] transition-transform duration-300"
+            className="bg-[#23243a] rounded-2xl shadow-2xl max-w-lg w-full p-4 sm:p-8 border border-[#23243a] relative animate-fade-in-up scale-95 opacity-0 animate-[fadeInUp_0.3s_ease-out_forwards] transition-transform duration-300 overflow-y-auto max-h-[90vh]"
             initial={{ opacity: 0, scale: 0.95, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 40 }}
