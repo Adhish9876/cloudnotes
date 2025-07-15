@@ -16,6 +16,7 @@ app.use(cors({
   ],
   credentials: true
 }));
+app.options('*', cors()); // Handle preflight requests for all routes
 
 // Connect to MongoDB
 connectToMongo();
