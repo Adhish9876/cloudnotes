@@ -12,7 +12,7 @@ if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
-}
+}//
 
 const fetchuser = async (req, res, next) => {
   const token = req.header('auth-token');
