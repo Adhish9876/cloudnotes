@@ -161,37 +161,7 @@ router.post('/login',
     }
 });
 
-    // Google Login Route
-router.post('/google-login', async (req, res) => {
-  const { idToken } = req.body;
-  if (!idToken) {
-    return res.status(400).json({ error: 'No idToken provided' });
-  }
-  try {
-    // Verify Firebase ID token
-    const decoded = await admin.auth().verifyIdToken(idToken);
-    if (!decoded.email_verified) {
-      return res.status(403).json({ error: 'Email not verified' });
-    }
-    // Find or create user in MongoDB
-    let user = await User.findOne({ email: decoded.email });
-    if (!user) {
-      // Create a random password for Google users
-      const randomPassword = crypto.randomBytes(32).toString('hex');
-      user = await User.create({
-        name: decoded.name || decoded.email.split('@')[0],
-        email: decoded.email,
-        password: randomPassword,
-      });
-    }
-    const payload = { user: { id: user.id } };
-    const authtoken = jwt.sign(payload, JWT_SECRET);
-    res.json({ authtoken });
-  } catch (err) {
-    console.error(err);
-    res.status(401).json({ error: 'Invalid or expired idToken' });
-  }
-});
+    // Remove /google-login route and firebase-admin usage
 
    
        

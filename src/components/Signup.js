@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../firebase';
-import { createUserWithEmailAndPassword, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 
 // Dynamic host selection for local/dev and production
 function getApiHost() {
@@ -33,31 +33,6 @@ export default function Signup() {
       navigate('/home');
     } catch (err) {
       setError(err.message || 'Signup failed');
-    }
-  };
-
-  const handleGoogleSignup = async () => {
-    setError("");
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const idToken = await result.user.getIdToken();
-      // Send the idToken to backend to get backend JWT
-      const response = await fetch(`${Host}/api/auth/google-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-      });
-      const json = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', json.authtoken);
-        localStorage.setItem('userEmail', result.user.email);
-        navigate("/home");
-      } else {
-        setError(json.error || "Google sign up failed");
-      }
-    } catch (err) {
-      setError(err.message || "Google sign up failed");
     }
   };
 
@@ -110,14 +85,6 @@ export default function Signup() {
           </div>
           <button type="submit" className="w-full py-3 rounded-xl bg-[#ff5c35] text-white font-bold text-lg shadow hover:bg-[#ff784e] transition">Sign Up</button>
         </form>
-        <button
-          className="w-full mt-4 py-3 rounded-xl border border-[#e5e7eb] bg-white text-[#191A23] font-semibold flex items-center justify-center gap-2 shadow hover:bg-[#f3f4f6] transition"
-          type="button"
-          onClick={handleGoogleSignup}
-        >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-          Sign up with Google
-        </button>
         <p className="mt-6 text-center text-[#b0b3c6]">
           Already have an account?{' '}
           <Link to="/login" className="text-[#ff5c35] hover:underline font-semibold">Login</Link>

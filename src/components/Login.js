@@ -61,35 +61,7 @@ export default function Login() {
     navigate('/');
   };
 
-  const handleGoogleLogin = async () => {
-    setError("");
-    setAuthenticating(true); // NEW
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const idToken = await result.user.getIdToken();
-      // Send the idToken to backend to get backend JWT
-      const response = await fetch(`${Host}/api/auth/google-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-      });
-      const json = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', json.authtoken);
-        localStorage.setItem('userEmail', result.user.email);
-        navigate("/home");
-      } else {
-        setError(json.error || "Google login failed");
-      }
-    } catch (err) {
-      if (err.code !== 'auth/cancelled-popup-request') {
-        setError(err.message || "Google sign in failed");
-      }
-      // else: ignore cancelled-popup-request
-    }
-    setAuthenticating(false); // NEW
-  };
+  // Remove Google login logic and button
 
   return (
     <div className="relative h-screen w-screen bg-[#191A23] px-4">
@@ -145,15 +117,7 @@ export default function Login() {
             </form>
 
             {/* Google Sign In */}
-            <button
-              className="w-full mt-4 py-3 rounded-xl border border-[#e5e7eb] bg-white text-[#191A23] font-semibold flex items-center justify-center gap-2 shadow hover:bg-[#f3f4f6] transition"
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={authenticating} // NEW
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-              {authenticating ? 'Signing in...' : 'Sign in with Google'}
-            </button>
+            {/* Removed Google Sign In button */}
 
             <p className="mt-6 text-center text-[#b0b3c6]">
               Don't have an account?{' '}
