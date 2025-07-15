@@ -10,9 +10,9 @@ const port = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://cloudnotes-19.web.app', // Add your deployed frontend domain here
-    'https://cloudnotes-19.firebaseapp.com', // Add any other frontend domains if needed
-    'https://cloudnotes-d60l.onrender.com' // <-- Updated to current backend domain
+    'https://cloudnotes-19.web.app', // Firebase Hosting domain
+    'https://cloudnotes-19.firebaseapp.com', // Firebase preview domain
+    'https://cloudnotes-d60l.onrender.com' // Backend domain
   ],
   credentials: true
 }));
