@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../firebase';
-import { createUserWithEmailAndPassword, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 // Dynamic host selection for local/dev and production
 function getApiHost() {
@@ -27,8 +27,27 @@ export default function Signup() {
     try {
       // Firebase signup
       const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
-      setError('');
-      // Log in immediately after signup
+      const idToken = await userCredential.user.getIdToken();
+      // Call backend to create user in MongoDB
+      const response = await fetch(`${Host}/api/auth/createuser`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          email: credentials.email,
+          password: credentials.password
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || 'Backend signup failed');
+        // Optionally: delete Firebase user if backend fails
+        await userCredential.user.delete();
+        return;
+      }
+      localStorage.setItem('token', idToken);
       localStorage.setItem('userEmail', credentials.email);
       navigate('/home');
     } catch (err) {
@@ -42,19 +61,9 @@ export default function Signup() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
-      const response = await fetch(`${Host}/api/auth/google-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-      });
-      const json = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', json.authtoken);
-        localStorage.setItem('userEmail', result.user.email);
-        navigate("/home");
-      } else {
-        setError(json.error || "Google sign up failed");
-      }
+      localStorage.setItem('token', idToken);
+      localStorage.setItem('userEmail', result.user.email);
+      navigate("/home");
     } catch (err) {
       setError(err.message || "Google sign up failed");
     }

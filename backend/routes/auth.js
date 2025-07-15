@@ -45,109 +45,95 @@ async function sendVerificationEmail(user, req) {
   });
 }
 
-router.post('/createuser',
-    [
-        body('email')
-            .isEmail()
-            .withMessage('Enter a valid email'),
+// Remove classic /createuser and /login routes
 
-        body('username')
-            .notEmpty()
-            .withMessage('Username is required')
-            .bail() // stop if empty
-            .isLength({ min: 3 })
-            .withMessage('Username must be at least 3 characters long'),
-
-        body('password')
-            .notEmpty()
-            .withMessage('Password is required')
-            .bail()
-            .isLength({ min: 8 })
-            .withMessage('Password must be at least 8 characters long')
-    ],
-    async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        try {
-            // Check if email already exists
-            const existingUser = await User.findOne({ email: req.body.email });
-            if (existingUser) {
-                return res.status(400).json({ error: "Email already exists" });
-            }
-            const salt=await bcrypt.genSalt(10);
-            const secPass=await bcrypt.hash(req.body.password,salt);
-
-            // Create new user (no verification)
-            const user = await User.create({
-                name: req.body.username,
-                email: req.body.email,
-                password: secPass
-            });
-            const data={
-                user:{
-                    id:user.id
-                }
-            }
-            const authtoken=jwt.sign(data,JWT_SECRET);
-            res.json({authtoken});
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).json({ error: "Internal Server Error" });
-        }
+// Add a route to verify Firebase ID token and return user info
+router.post('/verify-token', async (req, res) => {
+  const token = req.header('auth-token');
+  if (!token) {
+    return res.status(401).send({ error: 'No token, authorization denied' });
+  }
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    if (!decodedToken.email_verified) {
+      return res.status(403).send({ error: 'Email not verified' });
     }
-);
+    // Optionally, you can fetch more user info from Firebase
+    const userRecord = await admin.auth().getUser(decodedToken.uid);
+    res.json({
+      uid: userRecord.uid,
+      email: userRecord.email,
+      displayName: userRecord.displayName,
+      photoURL: userRecord.photoURL,
+      emailVerified: userRecord.emailVerified,
+      providerData: userRecord.providerData
+    });
+  } catch (err) {
+    return res.status(401).send({ error: 'Token is not valid' });
+  }
+});
 
-// Remove /verify endpoint
+router.post('/login', async (req, res) => {
+  const token = req.header('auth-token');
+  if (!token) return res.status(401).json({ error: 'No token provided' });
 
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    const user = await User.findOne({ email: decoded.email });
+    if (!user) return res.status(404).json({ error: 'User not found in DB' });
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
 
-router.post('/login',
-    [
-        body('email')
-            .isEmail()
-            .withMessage('Enter a valid email'),
+router.post('/createuser', [
+  body('email').isEmail().withMessage('Enter a valid email'),
+  body('username').notEmpty().withMessage('Username is required').isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
+  body('password').notEmpty().withMessage('Password is required').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-        body('password')
-            .notEmpty()
-            .withMessage('Password is required')
-            .bail()
-            .isLength({ min: 8 })
-            .withMessage('Password must be at least 8 characters long')
+  const { email, username, password } = req.body;
+  let firebaseUser = null;
+  try {
+    // 1. Create user in Firebase Auth
+    try {
+      firebaseUser = await admin.auth().createUser({
+        email,
+        password,
+        displayName: username
+      });
+    } catch (e) {
+      return res.status(400).json({ error: 'Firebase Auth error: ' + e.message });
+    }
 
-      
-    ],
-    async (req, res) => {
-          const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
+    // 2. Create user in MongoDB
+    const salt = await bcrypt.genSalt(10);
+    const secPass = await bcrypt.hash(password, salt);
+    let user;
+    try {
+      user = await User.create({
+        name: username,
+        email,
+        password: secPass
+      });
+    } catch (err) {
+      // Rollback Firebase user if MongoDB creation fails
+      if (firebaseUser) {
+        await admin.auth().deleteUser(firebaseUser.uid);
+      }
+      return res.status(400).json({ error: 'MongoDB error: ' + err.message });
+    }
 
-        const {email,password}=req.body;
-        try {
-            const user = await User.findOne({email});
-            if(!user){
-                return res.status(400).json({error:"Please try to login with correct credentials"});
-            }
-            const passwordCompare = await bcrypt.compare(password, user.password);
-            if(!passwordCompare){
-                return res.status(400).json({error:"Please try to login with correct credentials"});
-            }
-            const payload={
-                user:{
-                    id:user.id
-            }
-            }
-            const authtoken=jwt.sign(payload,JWT_SECRET);
-            res.json({authtoken});
-        } catch (error) {
-            console.log(error);
-            res.status(500).send("Internal Server Error");
-            
-        }
-        }
-    );
+    res.json({ success: true, firebaseUid: firebaseUser.uid, userId: user.id });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
     //get users details;
     router.get('/getuser', fetchuser, async (req, res) => {
@@ -162,32 +148,6 @@ router.post('/login',
 });
 
     // Add Google Login Route
-router.post('/google-login', async (req, res) => {
-  const { idToken } = req.body;
-  if (!idToken) {
-    return res.status(400).json({ error: 'No idToken provided' });
-  }
-  try {
-    const decoded = await admin.auth().verifyIdToken(idToken);
-    if (!decoded.email_verified) {
-      return res.status(403).json({ error: 'Email not verified' });
-    }
-    let user = await User.findOne({ email: decoded.email });
-    if (!user) {
-      const randomPassword = require('crypto').randomBytes(32).toString('hex');
-      user = await User.create({
-        name: decoded.name || decoded.email.split('@')[0],
-        email: decoded.email,
-        password: randomPassword,
-      });
-    }
-    const payload = { user: { id: user.id } };
-    const authtoken = jwt.sign(payload, JWT_SECRET);
-    res.json({ authtoken });
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid or expired idToken' });
-  }
-});
 
    
        

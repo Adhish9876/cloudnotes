@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 // Dynamic host selection for local/dev and production
 function getApiHost() {
@@ -36,22 +36,26 @@ export default function Login() {
     setError('');
     try {
       // Firebase email/password login
-      // (If you want to use Firebase Auth state, you can use signInWithEmailAndPassword here)
+      const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
+      const idToken = await userCredential.user.getIdToken();
+      // Call backend to get user info from MongoDB
       const response = await fetch(`${Host}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': idToken
+        }
       });
-      const json = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', json.authtoken);
-        localStorage.setItem('userEmail', credentials.email);
-        navigate('/home');
-      } else {
-        setError(json.error || 'Login failed');
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || 'Backend login failed');
+        return;
       }
-    } catch {
-      setError('Something went wrong. Try again.');
+      localStorage.setItem('token', idToken);
+      localStorage.setItem('userEmail', credentials.email);
+      navigate('/home');
+    } catch (err) {
+      setError(err.message || 'Login failed');
     }
   };
 
@@ -68,19 +72,23 @@ export default function Login() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
-      const response = await fetch(`${Host}/api/auth/google-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
+      // Call backend to get user info from MongoDB
+      const response = await fetch(`${Host}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'auth-token': idToken
+        }
       });
-      const json = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', json.authtoken);
-        localStorage.setItem('userEmail', result.user.email);
-        navigate("/home");
-      } else {
-        setError(json.error || "Google login failed");
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || 'Backend login failed');
+        setAuthenticating(false);
+        return;
       }
+      localStorage.setItem('token', idToken);
+      localStorage.setItem('userEmail', result.user.email);
+      navigate("/home");
     } catch (err) {
       setError(err.message || "Google sign in failed");
     }
