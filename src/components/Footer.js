@@ -8,7 +8,7 @@ const Footer = () => (
       </div>
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 text-[#b0b3c6] text-sm items-center">
         <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff5c35] transition py-2 px-4 rounded-xl">GitHub</a>
-        <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff5c35] transition py-2 px-4 rounded-xl">click me</a>
+        <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff5c35] transition py-2 px-4 rounded-xl">CLICK ME</a>
       </div>
     </div>
   </footer>

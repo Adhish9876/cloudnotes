@@ -32,13 +32,13 @@ const Ihome = ({ isLoggedIn }) => (
       transition={{ duration: 1, delay: 0.2 }}
     ></motion.div>
     <motion.main
-      className="relative z-10 w-full max-w-3xl mx-auto text-center py-16 sm:py-24 flex flex-col items-center pt-8"
+      className="relative z-10 w-full max-w-3xl mx-auto text-center py-10 sm:py-16 flex flex-col items-center pt-8 px-2 sm:px-4"
       initial={{ opacity: 0, y: 60 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.3, type: 'spring', stiffness: 60 }}
     >
       <motion.h1
-        className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight mb-6"
+        className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight mb-6 px-2"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.5 }}
@@ -53,11 +53,11 @@ const Ihome = ({ isLoggedIn }) => (
           transition={{ duration: 0.7, delay: 0.7 }}
         >
           <p className="text-base sm:text-lg text-white mb-4">You are already logged in.</p>
-          <a href="/home?addnote=1" className="px-6 py-3 rounded-full bg-[#ff5c35] text-white font-bold shadow hover:bg-[#ff784e] transition">Create+</a>
+          <a href="/home?addnote=1" className="px-6 py-3 rounded-full bg-[#ff5c35] text-white font-bold shadow hover:bg-[#ff784e] transition text-base sm:text-lg">Create+</a>
         </motion.div>
       ) : (
         <motion.div
-          className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-2 w-full"
+          className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mt-2 w-full my-3"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.7 }}

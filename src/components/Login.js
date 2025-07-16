@@ -83,10 +83,7 @@ export default function Login() {
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
               {authenticating ? 'Signing in...' : 'Sign in with Google'}
             </button>
-            <p className="mt-6 text-center text-[#b0b3c6]">
-              Don't have an account?{' '}
-              <button className="text-[#ff5c35] hover:underline font-semibold" onClick={() => navigate('/signup')}>Sign Up</button>
-            </p>
+           
           </div>
 
           {/* Right: Illustration */}
