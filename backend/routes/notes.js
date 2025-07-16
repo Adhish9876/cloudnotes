@@ -99,8 +99,10 @@ router.delete('/deletenote/:id', fetchuser, async (req, res) => {
     let note = await Notes.findById(req.params.id);
     if (!note) return res.status(404).send("Not Found");
 
-    // Defensive: check if note.user exists
-    if (note.user.toString() !== req.user.id) { // revert to id
+    // Debug log
+    console.log('Delete attempt:', { noteUser: note.user, reqUserId: req.user.id });
+
+    if (note.user.toString() !== req.user.id.toString()) { // compare as strings
       return res.status(401).send("Not Allowed");
     }
 
