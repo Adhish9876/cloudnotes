@@ -92,9 +92,9 @@ const Ihome = ({ isLoggedIn }) => (
             initial="hidden"
             animate="visible"
           >
-            <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#ff5c35]/10 mb-4">
+          <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#ff5c35]/10 mb-4">
               <i className={`${card.icon} text-[#ff5c35] text-2xl`}></i>
-            </div>
+          </div>
             <h3 className="text-white text-lg sm:text-2xl font-bold mb-2">{card.title}</h3>
             <p className="text-[#b0b3c6] text-base mb-4">{card.desc}</p>
           </motion.div>
