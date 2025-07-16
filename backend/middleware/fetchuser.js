@@ -16,6 +16,8 @@ if (!admin.apps.length) {
   });
 }
 
+const User = require('../models/User'); // add this import
+
 const fetchuser = async (req, res, next) => {
   const token = req.header('auth-token');
   if (!token) {
@@ -26,7 +28,12 @@ const fetchuser = async (req, res, next) => {
     if (!decodedToken.email_verified) {
       return res.status(403).send({ error: 'Email not verified' });
     }
-    req.user = decodedToken;
+    // Find the user in your MongoDB by email
+    const user = await User.findOne({ email: decodedToken.email });
+    if (!user) {
+      return res.status(401).send({ error: 'User not found in DB' });
+    }
+    req.user = { id: user._id }; // Set id for downstream routes
     return next();
   } catch (err) {
     return res.status(401).send({ error: 'Token is not valid' });

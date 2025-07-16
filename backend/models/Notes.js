@@ -3,7 +3,8 @@ const { Schema } = mongoose;
 
 const NotesSchema = new Schema({
     user: {
-        type: String, // Firebase UID is a string
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
         required: true
       },
     title:{
