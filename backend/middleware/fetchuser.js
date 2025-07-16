@@ -29,9 +29,14 @@ const fetchuser = async (req, res, next) => {
       return res.status(403).send({ error: 'Email not verified' });
     }
     // Find the user in your MongoDB by email
-    const user = await User.findOne({ email: decodedToken.email });
+    let user = await User.findOne({ email: decodedToken.email });
     if (!user) {
-      return res.status(401).send({ error: 'User not found in DB' });
+      // Auto-create user if not found (for Google sign-in or first login)
+      user = await User.create({
+        name: decodedToken.name || decodedToken.email,
+        email: decodedToken.email,
+        password: 'google-oauth' // placeholder, not used for Google users
+      });
     }
     req.user = { id: user._id }; // Set id for downstream routes
     return next();
