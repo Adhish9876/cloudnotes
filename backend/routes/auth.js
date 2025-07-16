@@ -79,6 +79,10 @@ router.post('/login', async (req, res) => {
 
   try {
     const decoded = await admin.auth().verifyIdToken(token);
+    // Only allow Google provider
+    if (!decoded.firebase || !decoded.firebase.sign_in_provider || decoded.firebase.sign_in_provider !== 'google.com') {
+      return res.status(403).json({ error: 'Only Google login is allowed' });
+    }
     const user = await User.findOne({ email: decoded.email });
     if (!user) return res.status(404).json({ error: 'User not found in DB' });
     res.json({ success: true, user });

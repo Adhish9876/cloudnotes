@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import noteContext from "./noteContext";
+import { auth } from '../../../src/firebase'; // adjust path as needed
 
 // Dynamic host selection for local/dev and production
 function getApiHost() {
@@ -7,6 +8,14 @@ function getApiHost() {
     return 'http://localhost:5000';
   }
   return 'https://cloudnotes-d60l.onrender.com';
+}
+
+async function getFreshToken() {
+  const user = auth.currentUser;
+  if (user) {
+    return await user.getIdToken(true); // force refresh
+  }
+  return null;
 }
 
 const NoteState = (props) => {
@@ -20,7 +29,7 @@ const NoteState = (props) => {
 
   // ADD A NOTE
   const addNote = async (title, description, tag="personal") => {
-    const token = localStorage.getItem('token');
+    const token = await getFreshToken();
     const res = await fetch(`${host}/api/notes/addNote`, {
       method: "POST",
       headers: {
@@ -43,7 +52,7 @@ const NoteState = (props) => {
   };
 
   const getNote = async () => {
-    const token = localStorage.getItem('token');
+    const token = await getFreshToken();
     const res = await fetch(`${host}/api/notes/fetchNotes`, {
       method: "GET",
       headers: {
@@ -62,7 +71,7 @@ const NoteState = (props) => {
 
   // DELETE A NOTE
   const deleteNote = async (id) => {
-    const token = localStorage.getItem('token');
+    const token = await getFreshToken();
     await fetch(`${host}/api/notes/deletenote/${id}`, {
       method: "DELETE",
       headers: {
@@ -78,7 +87,7 @@ const NoteState = (props) => {
 
   // EDIT A NOTE
   const editNote = async (id, title, description, tag) => {
-    const token = localStorage.getItem('token');
+    const token = await getFreshToken();
     await fetch(`${host}/api/notes/updatenote/${id}`, {
       method: "PUT",
       headers: {

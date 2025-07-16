@@ -65,9 +65,7 @@ const Ihome = ({ isLoggedIn }) => (
           <Link to="/login" className="w-full sm:w-auto px-8 py-4 rounded-full border-2 border-[#ff5c35] text-[#ff5c35] bg-transparent font-semibold text-lg transition hover:bg-[#ff5c35] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff5c35] focus:ring-offset-2 shadow-md">
             Login
           </Link>
-          <Link to="/signup" className="w-full sm:w-auto px-8 py-4 my-4 rounded-full bg-[#ff5c35] text-white font-semibold text-lg transition hover:bg-[#ff784e] focus:outline-none focus:ring-2 focus:ring-[#ff5c35] focus:ring-offset-2 shadow-md">
-            Sign Up
-          </Link>
+         
         </motion.div>
       )}
       <div className="w-full flex flex-col md:flex-row gap-4 sm:gap-8 justify-center items-stretch mb-12">

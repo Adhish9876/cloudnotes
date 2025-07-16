@@ -7,13 +7,20 @@ const cors = require("cors");
 
 const app = express();
 const port = process.env.PORT || 5000;
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://cloudnotes-19.web.app',
+  'https://cloudnotes-19.firebaseapp.com',
+  'https://cloudnotes-d60l.onrender.com'
+];
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://cloudnotes-19.web.app', // Firebase Hosting domain
-    'https://cloudnotes-19.firebaseapp.com', // Firebase preview domain
-    'https://cloudnotes-d60l.onrender.com' // Backend domain
-  ],
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.web.app') || origin.endsWith('.firebaseapp.com')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.options('*', cors()); // Handle preflight requests for all routes
