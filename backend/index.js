@@ -3,8 +3,6 @@ const express = require('express');
 const connectToMongo = require('./db');
 const cors = require("cors");
 
-
-
 const app = express();
 const port = process.env.PORT || 5000;
 const allowedOrigins = [
@@ -13,17 +11,27 @@ const allowedOrigins = [
   'https://cloudnotes-19.firebaseapp.com',
   'https://cloudnotes-d60l.onrender.com'
 ];
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.web.app') || origin.endsWith('.firebaseapp.com')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (
+    !origin ||
+    allowedOrigins.includes(origin) ||
+    origin.endsWith('.web.app') ||
+    origin.endsWith('.firebaseapp.com')
+  ) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Vary', 'Origin');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, auth-token');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
     }
-  },
-  credentials: true
-}));
-app.options('*', cors()); // Handle preflight requests for all routes
+    next();
+  } else {
+    res.status(403).send('CORS: This origin is not allowed.');
+  }
+});
 
 // Connect to MongoDB
 connectToMongo();
@@ -33,8 +41,6 @@ app.use(express.json());
 
 app.use('/api/auth',require('./routes/auth'))
 app.use('/api/notes',require('./routes/notes'))
-
-
 
 app.listen(port, () => {
     console.log(` app listening on port ${port}`);
