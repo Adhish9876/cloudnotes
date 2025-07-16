@@ -35,7 +35,7 @@ router.post('/addNote',
 
       // Create new note with user id from fetchuser middleware
       const note = new Notes({
-        user: req.user.id,
+        user: req.user.uid, // FIX: use uid from Firebase token
         title,
         description,
         tag
@@ -77,7 +77,7 @@ router.put('/updatenote/:id',
       let note = await Notes.findById(req.params.id);
       if (!note) { return res.status(404).send("Not Found") }
 
-      if (note.user.toString() !== req.user.id) {
+      if (note.user.toString() !== req.user.uid) { // FIX: use uid
         return res.status(401).send("Not Allowed");
       }
 
@@ -99,7 +99,8 @@ router.delete('/deletenote/:id', fetchuser, async (req, res) => {
     let note = await Notes.findById(req.params.id);
     if (!note) return res.status(404).send("Not Found");
 
-    if (note.user.toString() !== req.user.id) {
+    // Defensive: check if note.user exists
+    if (!note.user || note.user.toString() !== req.user.uid) { // FIX: use uid and check existence
       return res.status(401).send("Not Allowed");
     }
 
