@@ -39,16 +39,8 @@ const NoteState = (props) => {
       body: JSON.stringify({ title, description, tag }),
     });
     const data = await res.json();
-    const note = {
-      _id: data._id || Math.random().toString(), // fallback if no ID
-      user: "68530bbac83fb69d5aa6716b",
-      title,
-      description: description,
-      tag: tag,
-      date: new Date().toISOString(),
-      __v: 0,
-    };
-    setnotes(notes.concat(note));
+    // Use the note returned from the backend directly
+    setnotes(notes.concat(data));
   };
 
   const getNote = async () => {
