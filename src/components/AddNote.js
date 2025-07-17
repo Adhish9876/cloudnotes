@@ -12,23 +12,42 @@ const tagOptions = [
 
 const AddNote = ({ showAlert }) => {
   const [warning, setWarning] = useState("");
+  const [success, setSuccess] = useState("");
   const [focusedField, setFocusedField] = useState("");
 
   const context = useContext(noteContext);
   const { notes, addNote } = context;
-  const [note, setNote] = useState({title: "", description: "", tag: "personal"});
+  const [note, setNote] = useState({title: "", description: "", tag: "personal", todos: []});
+  const [newTodo, setNewTodo] = useState("");
 
   const handleClick = (e) => {
     e.preventDefault();
-    if (note.title.length < 3 || note.description.length < 5) {
-      setWarning("Title must be at least 3 characters and description at least 5 characters.");
-      if (showAlert) showAlert("Title must be at least 3 characters and description at least 5 characters.");
+    if (note.title.length < 3) {
+      setWarning("Title must be at least 3 characters.");
+      setTimeout(() => setWarning(""), 2000);
+      return;
+    }
+    if (note.tag === 'todo' && note.todos.length === 0) {
+      setWarning("Please add at least 1 todo item.");
+      setTimeout(() => setWarning(""), 2000);
+      return;
+    }
+    if (note.tag !== 'todo' && note.description.length < 5) {
+      setWarning("Description must be at least 5 characters.");
+      setTimeout(() => setWarning(""), 2000);
       return;
     }
     setWarning("");
-    addNote(note.title, note.description, note.tag);
-    setNote({title: "", description: "", tag: "personal"});
-    if (showAlert) showAlert("Note added successfully!");
+    let description = note.description;
+    if (note.tag === 'todo') {
+      // Save todos as JSON string in description
+      description = JSON.stringify(note.todos);
+    }
+    addNote(note.title, description, note.tag);
+    setNote({title: "", description: "", tag: "personal", todos: []});
+    setNewTodo("");
+    setSuccess("Note added successfully!");
+    setTimeout(() => setSuccess(""), 2000);
   }
 
   const onChange = (e) => {
@@ -36,12 +55,53 @@ const AddNote = ({ showAlert }) => {
   }
 
   const handleTagChange = (selectedOption) => {
+    // Allow changing tag without clearing description or todos
     setNote({...note, tag: selectedOption.value});
   }
 
+  // Handler for Todo/Cancel button
+  const handleTodoButton = () => {
+    if (note.tag !== 'todo') {
+      setNote({ ...note, tag: 'todo' });
+    } else {
+      setNote({ ...note, tag: 'personal', description: '', todos: [] });
+    }
+  };
+
+  // Todo logic
+  const handleTodoInputChange = (e) => {
+    setNewTodo(e.target.value);
+  };
+
+  // Track which todo is selected (radio)
+  const [selectedTodoIdx, setSelectedTodoIdx] = useState(null);
+
+  const handleTodoInputKeyDown = (e) => {
+    if (e.key === 'Enter' && newTodo.trim() !== "") {
+      e.preventDefault();
+      setNote({
+        ...note,
+        todos: [...note.todos, { text: newTodo.trim(), checked: false }],
+      });
+      setNewTodo("");
+    }
+  };
+
+  const handleTodoRadio = (idx) => {
+    setSelectedTodoIdx(idx);
+  };
+
+  const handleTodoRemove = (idx) => {
+    const updatedTodos = note.todos.filter((_, i) => i !== idx);
+    setNote({ ...note, todos: updatedTodos });
+    // If the removed todo was selected, clear selection
+    if (selectedTodoIdx === idx) setSelectedTodoIdx(null);
+    else if (selectedTodoIdx > idx) setSelectedTodoIdx(selectedTodoIdx - 1);
+  };
+
   return (
     <div>
-      <div className="max-w-2xl w-full mx-auto bg-[#23243a] rounded-2xl shadow-2xl p-4 sm:p-8 lg:p-12 mt-8 border border-[#23243a] transition-shadow duration-200 hover:shadow-3xl flex flex-col items-center">
+      <div className="max-w-2xl w-full mx-auto bg-[#23243a]  rounded-2xl shadow-2xl p-4 sm:p-8 lg:p-12 mt-8 border border-[#23243a] transition-shadow duration-200 hover:shadow-3xl flex flex-col items-center">
         <h1 className="text-white font-bold text-3xl mb-6 flex items-center gap-3">
           <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#ff5c35] text-white mr-2 text-2xl">
             <FaPlus />
@@ -82,28 +142,59 @@ const AddNote = ({ showAlert }) => {
             </div>
           </div>
 
-          {/* Enhanced Description Textarea */}
+          {/* Enhanced Description or Todo List */}
           <div className="mb-6">
-            <label htmlFor="description" className="block text-white font-semibold mb-3 text-lg flex items-center gap-2">
-              <FaAlignLeft className="text-[#ff5c35]" />
-              Description
-            </label>
+            <div className="flex items-center justify-between mb-3">
+              <label htmlFor="description" className="block text-white font-semibold text-lg flex items-center gap-2 m-0">
+                <FaAlignLeft className="text-[#ff5c35]" />
+                Description
+              </label>
+              <button
+                type="button"
+                className={`ml-auto px-4 py-1 rounded-lg text-sm font-semibold border border-[#ff5c35] text-[#ff5c35] bg-white hover:bg-[#ff5c35] hover:text-white transition`}
+                onClick={handleTodoButton}
+                title={note.tag === 'todo' ? 'Cancel todo mode and clear all' : 'Convert to todo'}
+              >
+                {note.tag === 'todo' ? 'Cancel' : 'Todo'}
+              </button>
+            </div>
             <div className="relative group">
-              <textarea 
-                className={`bg-gradient-to-r from-white to-gray-50 text-[#191A23] rounded-xl px-6 py-4 w-full mb-4 border-2 transition-all duration-300 text-base font-medium placeholder-gray-400 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 resize-none ${
-                  focusedField === 'description' 
-                    ? 'border-[#ff5c35] shadow-[#ff5c35]/20 shadow-2xl scale-[1.02]' 
-                    : 'border-transparent hover:border-[#ff5c35]/30'
-                }`}
-                id="description" 
-                name="description" 
-                value={note.description} 
-                onChange={onChange} 
-                rows={4}
-                onFocus={() => setFocusedField('description')}
-                onBlur={() => setFocusedField('')}
-                placeholder="Describe your note in detail..."
-              />
+              {note.tag === 'todo' ? (
+                <div className="bg-gradient-to-r from-white to-gray-50 text-[#191A23] rounded-xl px-6 py-4 w-full mb-4 border-2 border-transparent transition-all duration-300 text-base font-medium placeholder-gray-400 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                  <ul className="mb-2">
+                    {note.todos.map((todo, idx) => (
+                      <li key={idx} className="flex items-center gap-2 mb-2">
+                        <span>{todo.text}</span>
+                        <button type="button" onClick={() => handleTodoRemove(idx)} className="ml-2 text-[#ff5c35] hover:text-red-500 text-xs">Remove</button>
+                      </li>
+                    ))}
+                  </ul>
+                  <input
+                    type="text"
+                    value={newTodo}
+                    onChange={handleTodoInputChange}
+                    onKeyDown={handleTodoInputKeyDown}
+                    placeholder="Add a todo and press Enter..."
+                    className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#ff5c35] text-base"
+                  />
+                </div>
+              ) : (
+                <textarea 
+                  className={`bg-gradient-to-r from-white to-gray-50 text-[#191A23] rounded-xl px-6 py-4 w-full mb-4 border-2 transition-all duration-300 text-base font-medium placeholder-gray-400 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 resize-none ${
+                    focusedField === 'description' 
+                      ? 'border-[#ff5c35] shadow-[#ff5c35]/20 shadow-2xl scale-[1.02]' 
+                      : 'border-transparent hover:border-[#ff5c35]/30'
+                  }`}
+                  id="description" 
+                  name="description" 
+                  value={note.description} 
+                  onChange={onChange} 
+                  rows={4}
+                  onFocus={() => setFocusedField('description')}
+                  onBlur={() => setFocusedField('')}
+                  placeholder="Describe your note in detail..."
+                />
+              )}
             </div>
           </div>
 

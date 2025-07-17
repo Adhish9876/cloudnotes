@@ -55,8 +55,7 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
   // Filter and sort notes
   const filteredNotes = notes
     .filter(note =>
-      note.title.toLowerCase().includes(search.toLowerCase()) ||
-      note.description.toLowerCase().includes(search.toLowerCase())
+      note.title.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
       if (sort === "Newest") return new Date(b.date) - new Date(a.date);
@@ -189,7 +188,7 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
         <AddNote showAlert={showAlert} />
       </motion.div>
       <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8"
+        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-8"
         variants={containerVariants}
         initial="hidden"
         animate="show"

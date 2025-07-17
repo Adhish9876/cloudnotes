@@ -155,7 +155,7 @@ const Navbar = ({ search, setSearch, sort, setSort }) => {
                   <input
                     type="text"
                     className="w-full px-3 py-2 rounded-xl border border-[#23243a] bg-[#23243a] text-white placeholder-[#b0b3c6] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] focus:outline-none transition"
-                    placeholder="Search notes..."
+                    placeholder="Search by title"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     aria-label="Search notes"

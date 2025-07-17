@@ -12,20 +12,20 @@ import Footer from "./components/Footer";
 import AllNotes from "./components/AllNotes";
 import { auth } from './firebase';
 
-function AppContent({ showAlert, alertMessage, user, authLoading }) {
+function AppContent({ showAlert, alertMessage, user, authLoading, search, setSearch, sort, setSort }) {
   const location = useLocation();
   // Hide Navbar on Ihome (landing page)
   const hideNavbar = location.pathname === "/"||location.pathname === "/login"||location.pathname === "/signup";
   if (authLoading) return <div className="flex items-center justify-center min-h-screen bg-[#191A23] text-white text-xl">Loading...</div>;
   return (
     <>
-      {!hideNavbar && <Navbar />}
+      {!hideNavbar && <Navbar search={search} setSearch={setSearch} sort={sort} setSort={setSort} />}
       {alertMessage && <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md"><Alert message={alertMessage} /></div>}
       <Routes>
         <Route path="/" element={<Ihome />} /> {/* Welcome Page */}
         <Route path="/about" element={<About />} />
         <Route path="/home" element={<Home showAlert={showAlert} />} /> {/* After login */}
-        <Route path="/allnotes" element={<AllNotes showAlert={showAlert} />} />
+        <Route path="/allnotes" element={<AllNotes showAlert={showAlert} search={search} setSearch={setSearch} sort={sort} setSort={setSort} />} />
         <Route path="/login" element={<Login showAlert={showAlert} />} />
         <Route path="/signup" element={<Signup showAlert={showAlert} />} />
       </Routes>
@@ -38,6 +38,9 @@ function App() {
   const [alertMessage, setAlertMessage] = useState("");
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  // Add search and sort state here
+  const [search, setSearch] = useState("");
+ 
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
@@ -62,7 +65,16 @@ function App() {
   return (
     <NoteState>
       <Router>
-        <AppContent showAlert={showAlert} alertMessage={alertMessage} user={user} authLoading={authLoading} />
+        <AppContent showAlert={showAlert} alertMessage={alertMessage} user={user} authLoading={authLoading} search={search} setSearch={setSearch}  />
+        <Routes>
+          <Route path="/" element={<Ihome />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/home" element={<Home showAlert={showAlert} />} />
+          <Route path="/allnotes" element={<AllNotes showAlert={showAlert} search={search} setSearch={setSearch}  />} />
+          <Route path="/login" element={<Login showAlert={showAlert} />} />
+          <Route path="/signup" element={<Signup showAlert={showAlert} />} />
+        </Routes>
+        {/* Footer and other components */}
       </Router>
     </NoteState>
   );
