@@ -13,29 +13,74 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
   const [show, setShow] = useState(false);
   const [currentNote, setCurrentNote] = useState({ title: "", description: "", tag: "", _id: "" });
   const [warning, setWarning] = useState("");
+  // Todo edit state
+  const [editTodos, setEditTodos] = useState([]);
+  const [editNewTodo, setEditNewTodo] = useState("");
 
   // Open/close handlers for Edit modal
   const openModal = (note) => {
     setCurrentNote(note);
+    if (note.tag === 'todo') {
+      try {
+        const parsed = JSON.parse(note.description);
+        setEditTodos(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        setEditTodos([]);
+      }
+    } else {
+      setEditTodos([]);
+    }
+    setEditNewTodo("");
     setShow(true);
   };
   const closeModal = () => {
     setShow(false);
     setWarning("");
+    setEditTodos([]);
+    setEditNewTodo("");
   };
 
   const onChange = (e) => {
     setCurrentNote({ ...currentNote, [e.target.name]: e.target.value });
   };
 
+  // Todo edit handlers
+  const handleEditTodoInputChange = (e) => setEditNewTodo(e.target.value);
+  const handleEditTodoInputKeyDown = (e) => {
+    if (e.key === 'Enter' && editNewTodo.trim() !== "") {
+      e.preventDefault();
+      setEditTodos([...editTodos, { text: editNewTodo.trim(), checked: false }]);
+      setEditNewTodo("");
+    }
+  };
+  const handleEditTodoRemove = (idx) => {
+    setEditTodos(editTodos.filter((_, i) => i !== idx));
+  };
+  const handleEditTodoCheck = (idx) => {
+    setEditTodos(editTodos.map((todo, i) => i === idx ? { ...todo, checked: !todo.checked } : todo));
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
-    if (currentNote.title.length < 3 || currentNote.description.length < 5) {
-      setWarning("Title must be at least 3 characters and description at least 5 characters.");
+    if (currentNote.title.length < 3) {
+      setWarning("Title must be at least 3 characters.");
+      return;
+    }
+    if (currentNote.tag === 'todo') {
+      if (editTodos.length === 0) {
+        setWarning("Please add at least 1 todo item.");
+        return;
+      }
+    } else if (currentNote.description.length < 5) {
+      setWarning("Description must be at least 5 characters.");
       return;
     }
     setWarning("");
-    await editNote(currentNote._id, currentNote.title, currentNote.description, currentNote.tag);
+    let description = currentNote.description;
+    if (currentNote.tag === 'todo') {
+      description = JSON.stringify(editTodos);
+    }
+    await editNote(currentNote._id, currentNote.title, description, currentNote.tag);
     closeModal();
     if (showAlert) showAlert("Note updated successfully!");
   };
@@ -70,7 +115,7 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
         {/* Edit Note Modal */}
         {show && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fade-in overflow-y-auto">
-            <div className="bg-[#23243a] rounded-2xl shadow-2xl max-w-lg w-full p-4 sm:p-8 border border-[#23243a] relative animate-fade-in-up scale-95 opacity-0 animate-[fadeInUp_0.3s_ease-out_forwards] transition-transform duration-300 overflow-y-auto max-h-[90vh]">
+            <div className="bg-[#23243a] rounded-2xl shadow-2xl max-w-lg w-full p-4 sm:p-8 border border-[#23243a] relative transition-transform duration-300 overflow-y-auto max-h-[90vh]">
               <button
                 className="absolute top-4 right-4 text-white hover:text-[#ff5c35] text-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#ff5c35]"
                 onClick={closeModal}
@@ -107,16 +152,38 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
                   <label className="block text-white font-semibold mb-2 flex items-center gap-2">
                     <i className="fas fa-align-left text-[#ff5c35]"></i> Description
                   </label>
-                  <textarea
-                    className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] placeholder-gray-400 text-white transition focus:outline-none"
-                    name="description"
-                    value={currentNote.description}
-                    onChange={onChange}
-                    minLength={5}
-                    required
-                    rows={4}
-                    aria-label="Note description"
-                  />
+                  {currentNote.tag === 'todo' ? (
+                    <div className="bg-gradient-to-r from-white to-gray-50 text-[#191A23] rounded-xl px-6 py-4 w-full mb-4 border-2 border-transparent transition-all duration-300 text-base font-medium placeholder-gray-400 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                      <ul className="mb-2">
+                        {editTodos.map((todo, idx) => (
+                          <li key={idx} className="flex items-center gap-2 mb-2">
+                            <input type="checkbox" checked={!!todo.checked} onChange={() => handleEditTodoCheck(idx)} className="accent-[#ff5c35] w-4 h-4" />
+                            <span className={todo.checked ? 'line-through text-gray-400' : ''}>{todo.text}</span>
+                            <button type="button" onClick={() => handleEditTodoRemove(idx)} className="ml-2 text-[#ff5c35] hover:text-red-500 text-xs">Remove</button>
+                          </li>
+                        ))}
+                      </ul>
+                      <input
+                        type="text"
+                        value={editNewTodo}
+                        onChange={handleEditTodoInputChange}
+                        onKeyDown={handleEditTodoInputKeyDown}
+                        placeholder="Add a todo and press Enter..."
+                        className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#ff5c35] text-base"
+                      />
+                    </div>
+                  ) : (
+                    <textarea
+                      className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] placeholder-gray-400 text-white transition focus:outline-none"
+                      name="description"
+                      value={currentNote.description}
+                      onChange={onChange}
+                      minLength={5}
+                      required
+                      rows={4}
+                      aria-label="Note description"
+                    />
+                  )}
                 </div>
                 <div>
                   <label className="block text-white font-semibold mb-2 flex items-center gap-2">
@@ -193,7 +260,7 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
                   <div className="mb-2 text-yellow-400 font-semibold text-base sm:text-lg flex items-center gap-2">
                     <i className="fas fa-thumbtack"></i> Pinned
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8 mb-8">
                     {pinnedNotes.map((note) => (
                       <Noteitem key={note._id} note={note} updateNote={openModal} handleView={() => {}} showAlert={showAlert} />
                     ))}
@@ -207,7 +274,7 @@ export default function AllNotes({ showAlert, search, setSearch, sort, setSort }
                       <i className="fas fa-layer-group"></i> Others
                     </div>
                   )}
-                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 md:gap-8">
                     {otherNotes.map((note) => (
                       <Noteitem key={note._id} note={note} updateNote={openModal} handleView={() => {}} showAlert={showAlert} />
                     ))}

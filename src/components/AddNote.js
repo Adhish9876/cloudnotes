@@ -10,13 +10,15 @@ const tagOptions = [
   { value: 'todo', label: 'Todo' },
 ];
 
-const AddNote = ({ showAlert }) => {
+const AddNote = ({ showAlert, addNote }) => {
   const [warning, setWarning] = useState("");
   const [success, setSuccess] = useState("");
   const [focusedField, setFocusedField] = useState("");
 
   const context = useContext(noteContext);
-  const { notes, addNote } = context;
+  const { notes } = context;
+  // Use the addNote prop if provided, otherwise use context.addNote
+  const addNoteFn = typeof addNote === 'function' ? addNote : context.addNote;
   const [note, setNote] = useState({title: "", description: "", tag: "personal", todos: []});
   const [newTodo, setNewTodo] = useState("");
 
@@ -43,11 +45,15 @@ const AddNote = ({ showAlert }) => {
       // Save todos as JSON string in description
       description = JSON.stringify(note.todos);
     }
-    addNote(note.title, description, note.tag);
+    addNoteFn(note.title, description, note.tag);
     setNote({title: "", description: "", tag: "personal", todos: []});
     setNewTodo("");
-    setSuccess("Note added successfully!");
-    setTimeout(() => setSuccess(""), 2000);
+    if (showAlert) {
+      showAlert("Note added successfully!");
+    } else {
+      setSuccess("Note added successfully!");
+      setTimeout(() => setSuccess(""), 2000);
+    }
   }
 
   const onChange = (e) => {

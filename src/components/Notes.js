@@ -7,10 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
   const context = useContext(noteContext);
-  const { notes, getNote, editNote } = context;
+  const { notes, getNote, editNote, addNote } = context;
 
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  // Only show the most recently added note from the notes array
+  const lastNote = notes.length > 0 ? notes[notes.length - 1] : null;
 
   useEffect(() => {
     setLoading(true);
@@ -25,31 +27,84 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
   const [show, setShow] = useState(false);
   const [currentNote, setCurrentNote] = useState({ title: "", description: "", tag: "", _id: "" });
   const [warning, setWarning] = useState("");
+  // Todo edit state
+  const [editTodos, setEditTodos] = useState([]);
+  const [editNewTodo, setEditNewTodo] = useState("");
 
   // Open/close handlers for Edit modal
   const openModal = (note) => {
     setCurrentNote(note);
+    if (note.tag === 'todo') {
+      try {
+        const parsed = JSON.parse(note.description);
+        setEditTodos(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        setEditTodos([]);
+      }
+    } else {
+      setEditTodos([]);
+    }
+    setEditNewTodo("");
     setShow(true);
   };
   const closeModal = () => {
     setShow(false);
     setWarning("");
+    setEditTodos([]);
+    setEditNewTodo("");
   };
 
   const onChange = (e) => {
     setCurrentNote({ ...currentNote, [e.target.name]: e.target.value });
   };
 
+  // Todo edit handlers
+  const handleEditTodoInputChange = (e) => setEditNewTodo(e.target.value);
+  const handleEditTodoInputKeyDown = (e) => {
+    if (e.key === 'Enter' && editNewTodo.trim() !== "") {
+      e.preventDefault();
+      setEditTodos([...editTodos, { text: editNewTodo.trim(), checked: false }]);
+      setEditNewTodo("");
+    }
+  };
+  const handleEditTodoRemove = (idx) => {
+    setEditTodos(editTodos.filter((_, i) => i !== idx));
+  };
+  const handleEditTodoCheck = (idx) => {
+    setEditTodos(editTodos.map((todo, i) => i === idx ? { ...todo, checked: !todo.checked } : todo));
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
-    if (currentNote.title.length < 3 || currentNote.description.length < 5) {
-      setWarning("Title must be at least 3 characters and description at least 5 characters.");
+    if (currentNote.title.length < 3) {
+      setWarning("Title must be at least 3 characters.");
+      return;
+    }
+    if (currentNote.tag === 'todo') {
+      if (editTodos.length === 0) {
+        setWarning("Please add at least 1 todo item.");
+        return;
+      }
+    } else if (currentNote.description.length < 5) {
+      setWarning("Description must be at least 5 characters.");
       return;
     }
     setWarning("");
-    await editNote(currentNote._id, currentNote.title, currentNote.description, currentNote.tag);
+    let description = currentNote.description;
+    if (currentNote.tag === 'todo') {
+      description = JSON.stringify(editTodos);
+    }
+    await editNote(currentNote._id, currentNote.title, description, currentNote.tag);
     closeModal();
     if (showAlert) showAlert("Note updated successfully!");
+  };
+
+  // Custom addNote handler to capture the last added note
+  const handleAddNote = async (title, description, tag) => {
+    await addNote(title, description, tag);
+    // Find the last note (assuming backend returns all notes)
+    // Instead, just set a local note object for display
+    // setLastAddedNote({ title, description, tag, date: new Date().toISOString(), _id: Math.random().toString(36).slice(2) });
   };
 
   // Filter and sort notes
@@ -132,16 +187,38 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
                 <label className="block text-white font-semibold mb-2 flex items-center gap-2">
                   <i className="fas fa-align-left text-[#ff5c35]"></i> Description
                 </label>
-                <textarea
-                  className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#191A23] placeholder-gray-400 text-white transition focus:outline-none"
-                  name="description"
-                  value={currentNote.description}
-                  onChange={onChange}
-                  minLength={5}
-                  required
-                  rows={4}
-                  aria-label="Note description"
-                />
+                {currentNote.tag === 'todo' ? (
+                  <div className="bg-gradient-to-r from-white to-gray-50 text-[#191A23] rounded-xl px-6 py-4 w-full mb-4 border-2 border-transparent transition-all duration-300 text-base font-medium placeholder-gray-400 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <ul className="mb-2">
+                      {editTodos.map((todo, idx) => (
+                        <li key={idx} className="flex items-center gap-2 mb-2">
+                          <input type="checkbox" checked={!!todo.checked} onChange={() => handleEditTodoCheck(idx)} className="accent-[#ff5c35] w-4 h-4" />
+                          <span className={todo.checked ? 'line-through text-gray-400' : ''}>{todo.text}</span>
+                          <button type="button" onClick={() => handleEditTodoRemove(idx)} className="ml-2 text-[#ff5c35] hover:text-red-500 text-xs">Remove</button>
+                        </li>
+                      ))}
+                    </ul>
+                    <input
+                      type="text"
+                      value={editNewTodo}
+                      onChange={handleEditTodoInputChange}
+                      onKeyDown={handleEditTodoInputKeyDown}
+                      placeholder="Add a todo and press Enter..."
+                      className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:border-[#ff5c35] text-base"
+                    />
+                  </div>
+                ) : (
+                  <textarea
+                    className="w-full px-4 py-3 rounded-xl border border-[#23243a] focus:ring-2 focus:ring-[#ff5c35] focus:border-[#ff5c35] bg-[#23243a] placeholder-gray-400 text-white transition focus:outline-none"
+                    name="description"
+                    value={currentNote.description}
+                    onChange={onChange}
+                    minLength={5}
+                    required
+                    rows={4}
+                    aria-label="Note description"
+                  />
+                )}
               </div>
               <div>
                 <label className="block text-white font-semibold mb-2 flex items-center gap-2">
@@ -185,18 +262,18 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <AddNote showAlert={showAlert} />
+        <AddNote showAlert={showAlert} addNote={handleAddNote} />
       </motion.div>
       <motion.div
-        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-8"
+        className="grid grid-cols-1 gap-4 sm:gap-6 mt-8"
         variants={containerVariants}
         initial="hidden"
         animate="show"
       >
         <AnimatePresence>
-          {filteredNotes.map((note, i) => (
+          {lastNote && (
             <motion.div
-              key={note._id}
+              key={lastNote._id}
               variants={noteVariants}
               initial="hidden"
               animate="show"
@@ -204,14 +281,14 @@ export default function Notes({ showAlert, search, setSearch, sort, setSort }) {
               layout
             >
               <Noteitem
-                note={note}
+                note={lastNote}
                 updateNote={openModal}
                 handleView={() => {}}
                 showAlert={showAlert}
-                index={i}
+                index={0}
               />
             </motion.div>
-          ))}
+          )}
         </AnimatePresence>
       </motion.div>
     </motion.div>

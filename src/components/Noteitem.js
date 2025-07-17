@@ -83,17 +83,7 @@ export default function Noteitem(props) {
           <div className="flex items-center justify-between mb-2 min-w-0">
             <h3 className="text-lg sm:text-xl font-bold truncate flex-1 pr-2 min-w-0">{note.title}</h3>
             <div className="flex gap-2">
-              <button
-                className="text-yellow-400 hover:text-yellow-500 p-3 sm:p-2 rounded-full transition"
-                onClick={handlePin}
-                aria-label={note.pinned ? 'Unpin note' : 'Pin note'}
-              >
-                {note.pinned ? (
-                  <i className="fas fa-star"></i>
-                ) : (
-                  <i className="far fa-star"></i>
-                )}
-              </button>
+              
               <button
                 className="text-[#ff5c35] hover:text-white p-3 sm:p-2 rounded-full transition"
                 onClick={e => { e.stopPropagation(); updateNote(note); }}
@@ -102,7 +92,10 @@ export default function Noteitem(props) {
                 <i className="fas fa-pen-to-square"></i>
               </button>
               <button
-                className="text-[#ff5c35] hover:text-white p-3 sm:p-2 rounded-full transition"
+               className=" text-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition"
+
+
+
                 onClick={handleDelete}
                 aria-label="Delete note"
               >
